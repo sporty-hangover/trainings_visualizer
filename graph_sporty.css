@@ -1329,7 +1329,7 @@ input:checked + .toggle-slider:hover:after {
 }
 
 .notification.info {
-  border-left: 4px solid #007bff;
+  border-left: 4px solid var(--primary);
   background: var(--surface-light);
   color: var(--text-on-dark);
 }
@@ -2621,6 +2621,23 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+}
+
+/* Order display in compact header */
+.part-card.compact .compact-order {
+  position: absolute;
+  left: -35px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--primary);
+  color: white;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 25px;
+  text-align: center;
 }
 
 /* Toggle Button Styling */

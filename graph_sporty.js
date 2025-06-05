@@ -1627,6 +1627,14 @@ function createPartCard(parte) {
             <span class="part-card-title">${nombre} <small style="opacity: 0.7; font-size: 0.8em;">(diseñado por ${(parte.designedIn === 'distance') ? 'distancia' : 'tiempo'})</small></span>
         </div>
         <div class="part-card-body">
+            <div class="part-card-stat approximate">
+                <span>Duración aprox:</span>
+                <span>${parte.designedIn === 'distance' ? `~${formatDuration(calculateEffectiveDurationForSinglePhase(parte))}` : formatDuration(duracion)} min</span>
+            </div>
+            <div class="part-card-stat approximate">
+                <span>Kms aprox:</span>
+                <span>~${approxKms.toFixed(2)} km</span>
+            </div>
             <div class="part-card-stat order-display">
                 <span>Orden:</span>
                 <span>${displayOrder}</span>
@@ -1642,10 +1650,6 @@ function createPartCard(parte) {
             <div class="part-card-stat">
                 <span>Ritmo:</span>
                 <span>${ritmoZona} min/km</span>
-            </div>
-            <div class="part-card-stat approximate">
-                <span>Aproximado:</span>
-                <span>${approximateInfo}</span>
             </div>
         </div>
         <div class="part-card-actions">
@@ -1728,19 +1732,19 @@ function createSeriesCard(series) {
             <span class="part-card-title">⚡ ${nombre} <small style="opacity: 0.7; font-size: 0.8em;">(serie x${repetitions})</small></span>
         </div>
         <div class="part-card-body">
+            <div class="part-card-stat approximate">
+                <span>Total Duración:</span>
+                <span>${formatDuration(totalDuration)} min</span>
+            </div>
+            <div class="part-card-stat approximate">
+                <span>Total Distancia:</span>
+                <span>~${totalKms.toFixed(2)} km</span>
+            </div>
             <div class="part-card-stat order-display">
                 <span>Orden:</span>
                 <span>${displayOrder}</span>
             </div>
             <div class="series-totals">
-                <div class="part-card-stat">
-                    <span>Total Duración:</span>
-                    <span>${formatDuration(totalDuration)} min</span>
-                </div>
-                <div class="part-card-stat">
-                    <span>Total Distancia:</span>
-                    <span>~${totalKms.toFixed(2)} km</span>
-                </div>
             </div>
             <div class="series-details">
                 <div class="series-phase work-phase">
@@ -3899,6 +3903,7 @@ function removeCompactModeFromAllCards() {
     cards.forEach(card => {
         card.classList.remove('compact', 'expanded');
         removeToggleButton(card);
+        removeCompactOrder(card);
     });
 }
 
@@ -3910,6 +3915,9 @@ function makeCardCompact(card) {
     
     // Add toggle button if it doesn't exist
     addToggleButton(card);
+    
+    // Add compact order display if it doesn't exist
+    addCompactOrder(card);
     
     // Mark essential stats
     markEssentialStats(card);
@@ -4033,6 +4041,32 @@ window.collapseAllCards = function() {
         }
     });
 };
+
+function addCompactOrder(card) {
+    if (card.querySelector('.compact-order')) return;
+    
+    const header = card.querySelector('.part-card-header, .group-card-header');
+    if (!header) return;
+    
+    // Find the order stat in the card body
+    const orderStat = card.querySelector('.part-card-stat.order-display span:last-child');
+    if (!orderStat) return;
+    
+    const orderValue = orderStat.textContent.trim();
+    
+    const compactOrder = document.createElement('div');
+    compactOrder.className = 'compact-order';
+    compactOrder.textContent = orderValue;
+    
+    header.appendChild(compactOrder);
+}
+
+function removeCompactOrder(card) {
+    const compactOrder = card.querySelector('.compact-order');
+    if (compactOrder) {
+        compactOrder.remove();
+    }
+}
 
 // Hook into existing card creation functions
 const originalCreatePartCard = window.createPartCard;
