@@ -2478,13 +2478,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add enhanced keyboard shortcuts
         initializeKeyboardShortcuts();
         
+        // Initialize compact mode controls
+        setTimeout(() => {
+            initializeCompactMode();
+        }, 100);
+        
         // Initial render with enhanced features
     render();
     
         // Show welcome notification
         setTimeout(() => {
             showNotification('🎯 Training Planner cargado con mejoras avanzadas!', 'success');
-        }, 500);
+        }, 200);
         
         console.log("✅ Enhanced application initialized successfully");
     } catch (error) {
