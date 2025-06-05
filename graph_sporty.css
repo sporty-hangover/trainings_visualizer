@@ -1,38 +1,38 @@
 /* Base styles with CSS custom properties for theming */
 :root {
-  --primary: #e32727;
+  --primary: #E71925;
   --primary-hover: #c41e1e;
-  --background: #1a1a1a;
-  --surface: #2d2d2d;
-  --surface-light: #3a3a3a;
-  --border: #4a4a4a;
-  --text: #f5f5dc;
-  --text-secondary: #d4c4a8;
-  --accent: #e32727;
-  --cream: #f5f5dc;
-  --cream-dark: #e8dcc0;
-  --black: #1a1a1a;
-  --black-light: #2d2d2d;
-  --red: #e32727;
+  --background: #E1DFD2;
+  --surface: #222222;
+  --surface-light: #333333;
+  --border: #444444;
+  --text: #E1DFD2;
+  --text-secondary: #E1DFD2;
+  --accent: #E71925;
+  --cream: #E1DFD2;
+  --cream-dark: #d4d2c5;
+  --black: #222222;
+  --black-light: #333333;
+  --red: #E71925;
   --red-dark: #c41e1e;
-  --background-dark: #111;
-  --background-light: #f7f2e8;
-  --text-light: white;
-  --text-dark: black;
-  --border-radius: 8px;
+  --background-dark: #222222;
+  --background-light: #E1DFD2;
+  --text-light: #E1DFD2;
+  --text-dark: #222222;
+  --border-radius: 12px;
   --box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   --transition: all 0.3s ease;
   --gap-sm: 0.5rem;
   --gap-md: 1rem;
   --gap-lg: 2rem;
-  --primary-color: #e32727;
+  --primary-color: #E71925;
   --primary-dark: #c02121;
-  --surface: #16213e;
-  --border: #0f3460;
-  --text: #eee;
-  --accent: #e94560;
+  --surface: #222222;
+  --border: #444444;
+  --text: #E1DFD2;
+  --accent: #E71925;
   
-  /* Updated colors - replacing navy blue */
+  /* Updated colors */
   --graph-bar: var(--primary);
   --graph-bar-hover: var(--primary-hover);
   --notification-bg: var(--surface);
@@ -47,17 +47,17 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  padding: 1rem;
-  background: var(--background);
-  color: var(--text);
+  padding: 0.5rem;
+  background: #E1DFD2;
+  color: #222222;
   min-height: 100vh;
   line-height: 1.6;
   display: grid;
   grid-template-rows: auto auto auto 1fr;
-  gap: 1rem;
+  gap: 0.5rem;
   max-width: 95vw;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.5rem;
 }
 
 #top-bar {
@@ -95,10 +95,10 @@ input[type="number"],
 select,
 textarea {
   padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--background);
-  color: var(--text);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  color: #222222;
   font-size: 1rem;
 }
 
@@ -109,15 +109,15 @@ input[type="text"] {
 button {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--primary);
   color: white;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  text-shadow: none;
 }
 
 .form-buttons {
@@ -139,11 +139,12 @@ button {
 }
 
 .grafico-wrapper {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
   padding: 1rem;
   min-height: 500px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 #grafico {
@@ -152,9 +153,9 @@ button {
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   padding: 1rem;
   position: relative;
   flex: 1;
@@ -187,7 +188,7 @@ button {
 .graph-label {
   position: absolute;
   font-weight: bold;
-  color: var(--text-secondary);
+  color: #666666;
   font-size: 0.9rem;
 }
 
@@ -932,16 +933,17 @@ input:checked + .toggle-slider:hover:after {
 }
 
 .part-card, .group-card {
-  background: linear-gradient(135deg, var(--surface-light), var(--surface));
-  border: 1px solid var(--border);
+  background: white;
+  border: 1px solid #ddd;
   border-radius: 12px;
   padding: 1.2rem;
-  margin: 1rem 0 1rem 0; /* Add top margin to prevent collisions */
+  margin: 1rem 0 1rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   cursor: grab;
   overflow: hidden;
+  color: #222222;
 }
 
 .part-card::before {
@@ -1000,7 +1002,7 @@ input:checked + .toggle-slider:hover:after {
 .part-card-title {
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--text);
+  color: #222222;
   margin: 0;
   line-height: 1.3;
   letter-spacing: -0.02em;
@@ -1018,9 +1020,9 @@ input:checked + .toggle-slider:hover:after {
   justify-content: space-between;
   align-items: center;
   padding: 0.6rem 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8f8f8;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e0e0e0;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -1052,13 +1054,13 @@ input:checked + .toggle-slider:hover:after {
 
 .part-card-stat span:first-child {
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #666666;
   font-size: 0.9rem;
 }
 
 .part-card-stat span:last-child {
   font-weight: 600;
-  color: var(--text);
+  color: #222222;
   font-size: 0.95rem;
 }
 
@@ -2205,10 +2207,10 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     align-items: center;
     gap: 1rem;
     margin: 0;
-    padding: 0.75rem;
-    background: yellow;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 0.5rem;
+    background: #222222;
+    border: 1px solid #333333;
+    border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -2220,10 +2222,10 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     align-items: center;
     gap: 1rem;
     margin: 0;
-    padding: 0.75rem;
-    background: red;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 0.5rem;
+    background: #222222;
+    border: 1px solid #333333;
+    border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -2247,16 +2249,16 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 }
 
 .threshold-controls label {
-    color: var(--text-secondary);
+    color: #E1DFD2;
     font-weight: 500;
 }
 
 #umbralInput {
-    background: var(--background);
-    border: 1px solid var(--border);
-    color: var(--text);
+    background: white;
+    border: 1px solid #ddd;
+    color: #222222;
     padding: 0.5rem;
-    border-radius: 4px;
+    border-radius: 8px;
     width: 120px;
 }
 
@@ -2280,13 +2282,13 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 /* Main Layout - 2 Column Responsive Design */
 .main-layout {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   margin: 0;
   padding: 1rem;
   min-height: 480px;
   align-items: stretch;
-  background: green;
-  border-radius: 8px;
+  background: #E1DFD2;
+  border-radius: 12px;
   overflow: visible;
   box-sizing: border-box;
   width: 100%;
@@ -2320,18 +2322,20 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   width: 100%;
   box-sizing: border-box;
   overflow: visible;
+  padding-bottom: 2rem;
+  padding-left: 1.5rem;
 }
 
 /* Enhanced Summary Bar Styling */
 #summaryBar {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: #222222;
+  border: 1px solid #333333;
+  border-radius: 12px;
   padding: 1rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   width: 100%;
   box-sizing: border-box;
   overflow: visible;
@@ -2348,10 +2352,10 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 #summaryBar .summary-stat {
   text-align: center;
   padding: 1.5rem;
-  background: var(--surface-light);
+  background: #333333;
   border-radius: 8px;
-  border: 1px solid var(--border);
-  transition: var(--transition);
+  border: 1px solid #444444;
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
@@ -2381,14 +2385,14 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 .summary-stat-value {
   font-size: 2rem;
   font-weight: bold;
-  color: var(--primary);
+  color: #E71925;
   margin-bottom: 0.5rem;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  text-shadow: none;
 }
 
 .summary-stat-label {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: #E1DFD2;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 500;
@@ -2495,6 +2499,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     font-size: 0.9rem;
     font-weight: 500;
     margin: 0;
+    color: #E1DFD2;
 }
 
 .controls-actions {

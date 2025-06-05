@@ -886,9 +886,9 @@ function createGroupFromSelection() {
     
     if (selectedParts.size < 2) {
         alert("Selecciona al menos dos elementos para crear un grupo.");
-        return;
-    }
-
+            return;
+        }
+        
     const groupName = prompt('Nombre del grupo:', 'Nuevo Grupo');
     if (!groupName) return; // User cancelled
 
@@ -1429,12 +1429,12 @@ function renderUI() {
     // Add graph axis labels (re-add them if cleared by grafico.innerHTML)
     const intensidadLabel = document.createElement("div");
     intensidadLabel.className = "graph-label intensidad";
-    intensidadLabel.textContent = "intensidad";
+    intensidadLabel.textContent = "Intensidad";
     grafico.appendChild(intensidadLabel);
 
     const duracionLabel = document.createElement("div");
     duracionLabel.className = "graph-label duracion";
-    duracionLabel.textContent = "duración";
+    duracionLabel.textContent = "Duración";
     grafico.appendChild(duracionLabel);
 
     // Defer Sortable initialization to ensure DOM is fully updated.
@@ -2457,8 +2457,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     try {
         // Initialize sliders and UI with enhanced error handling
-    updateSliderVisibility();
-    
+        updateSliderVisibility();
+        
         // Initialize all zone sliders if needed
         setTimeout(() => {
             initZoneRangeSlider();
@@ -2471,10 +2471,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize modal event listeners
     initializeModalEventListeners();
-    
-    // Initialize form event listeners
-    initializeFormEventListeners();
-    
+        
+        // Initialize form event listeners
+        initializeFormEventListeners();
+        
         // Add enhanced keyboard shortcuts
         initializeKeyboardShortcuts();
         
@@ -2484,8 +2484,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
         
         // Initial render with enhanced features
-    render();
-    
+        render();
+        
         // Show welcome notification
         setTimeout(() => {
             showNotification('🎯 Training Planner cargado con mejoras avanzadas!', 'success');
@@ -2579,7 +2579,7 @@ function deleteSelectedParts() {
         groups = groups.filter(group => {
             if (selectedParts.has(group.id)) {
                 return false; // Remove the entire group
-            } else {
+    } else {
                 // Remove selected parts from the group
                 group.parts = group.parts.filter(part => !selectedParts.has(part.id));
                 return true; // Keep the group
@@ -3078,7 +3078,7 @@ function clearJsonImportInput() {
 function showNotification(message, type = 'info') {
     const container = document.getElementById('notification-container');
     if (!container) return;
-
+    
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
@@ -3149,7 +3149,7 @@ function handleFormSubmission() {
         showNotification('Por favor, introduce un nombre para la parte', 'error');
         return;
     }
-    
+
     const nombre = nombreInput.value.trim();
     const partTypeToggle = document.getElementById('partType');
     
@@ -3229,7 +3229,7 @@ function getWorkPhaseConfig() {
         console.error('Work phase form elements not found');
         return null;
     }
-    
+
     // Get intensity
     let indice, isRPE;
     if (workIntensityToggle.checked) {
@@ -3325,7 +3325,7 @@ function getRestPhaseConfig() {
         indice = (values[0] + values[1]) / 2; // Average zone
         isRPE = false;
     }
-    
+
     // Get duration
     let duracion, originalValue, designedIn;
     if (restDurationToggle.checked) {
@@ -3366,7 +3366,7 @@ function getRestPhaseConfig() {
         console.warn('Invalid rest phase duration:', duracion);
         return null;
     }
-    
+
     return {
         indice,
         duracion,
@@ -3394,7 +3394,7 @@ function createNormalPart(nombre) {
     } else {
         // Zone mode
         let values = [100, 100];
-        if (zoneSliderInstance) {
+    if (zoneSliderInstance) {
             values = zoneSliderInstance.get().map(parseFloat);
         }
         indice = (values[0] + values[1]) / 2; // Average zone
@@ -3618,11 +3618,11 @@ function updateSeriesPreview() {
                 <div class="summary-item">
                     <span class="label">Repeticiones:</span>
                     <span class="value">${repetitions}</span>
-                </div>
+            </div>
                 <div class="summary-item">
                     <span class="label">Duración total trabajo:</span>
                     <span class="value">${formatDuration(totalWorkDuration)}</span>
-                </div>
+            </div>
                 <div class="summary-item">
                     <span class="label">Duración total descanso:</span>
                     <span class="value">${formatDuration(totalRestDuration)}</span>
@@ -3974,10 +3974,10 @@ function markEssentialStats(card) {
             stat.classList.add('essential');
         } else {
             stat.classList.remove('essential');
-        }
-    });
-}
-
+            }
+        });
+    }
+    
 function observeForNewCards() {
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -3994,9 +3994,9 @@ function observeForNewCards() {
                     if (cards && isCompactMode) {
                         cards.forEach(card => {
                             setTimeout(() => makeCardCompact(card), 100);
-                        });
-                    }
-                }
+        });
+    }
+}
             });
         });
     });
