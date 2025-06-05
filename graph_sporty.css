@@ -160,7 +160,7 @@ button {
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  color: var(--cream);
+  color: transparent; /* Hide text by default */
   font-weight: bold;
   font-size: 0.7rem;
   text-align: center;
@@ -173,6 +173,7 @@ button {
   background: linear-gradient(to top, var(--primary-hover), var(--primary));
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(227, 39, 39, 0.4);
+  color: var(--cream); /* Show text on hover */
 }
 
 .graph-label {
@@ -2188,10 +2189,14 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 /* === CONTROLS CONTAINER === */
 .controls-container {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
     margin: 1rem 0;
+    padding: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
 }
 
 /* === TOOLBARS ROW === */
@@ -2261,6 +2266,8 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   display: flex;
   gap: 1.5rem;
   margin: 2rem 0;
+  margin-top: 1rem;
+  padding-top: 1rem;
   min-height: 500px;
   align-items: stretch;
 }
@@ -2678,6 +2685,13 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   
   .group-card.compact .group-card-body {
     max-height: 60px;
+  }
+  
+  /* Responsive controls container */
+  .controls-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
   
   /* Responsive toolbars row */
