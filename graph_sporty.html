@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Planificador visual de entrenamientos deportivos con gráficos interactivos">
+    <meta name="theme-color" content="#e32727">
+    <title>Graph Sporty - Planificador de Entrenamientos</title>
+    <!-- Include Sortable.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" href="graph_sporty.css">
+    <!-- Add noUiSlider CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
+</head>
+<body>
+    <div id="notification-container" class="notification-container"></div>
+
+    <button id="showJsonButton">📄 Ver JSON</button>
+
+    <button id="helpButton" type="button" aria-label="Mostrar ayuda" class="help-button">❓</button>
+
+    <div id="jsonModal" class="modal hidden" role="dialog" aria-labelledby="jsonModalTitle" aria-modal="true">
+        <div class="json-modal-content">
+            <h3 id="jsonModalTitle">📋 Gestión de Entrenamientos (JSON)</h3>
+            
+            <!-- Sección de Exportación -->
+            <div class="json-section">
+                <h4>📤 Exportar Entreno Actual</h4>
+                <div class="json-actions">
+                    <button type="button" id="copyJsonButton" class="copy-json-btn">📋 Copiar</button>
+                    <button type="button" id="downloadJsonButton" class="download-json-btn">💾 Descargar</button>
+                </div>
+                <pre><code id="jsonDataOutput" aria-label="Datos del entrenamiento en formato JSON"></code></pre>
+            </div>
+
+            <!-- Sección de Importación -->
+            <div class="json-section">
+                <h4>📥 Importar Entreno</h4>
+                <p class="import-help">Pega aquí un JSON de entreno para cargarlo:</p>
+                <textarea id="jsonImportInput" placeholder='{"partesEntreno": [...], "groups": [...]}'></textarea>
+                <div class="import-actions">
+                    <button type="button" id="loadJsonButton" class="load-json-btn">🔄 Cargar Entreno</button>
+                    <button type="button" id="clearImportButton" class="clear-import-btn">🗑️ Limpiar</button>
+                </div>
+                
+                <div class="default-training-section">
+                    <h5>🎯 Entrenamiento de Ejemplo</h5>
+                    <p class="default-help">Carga un entrenamiento completo con ejemplos mixtos:</p>
+                    <button type="button" id="loadDefaultTrainingButton" class="load-default-btn">⚡ Cargar Entrenamiento por Defecto</button>
+                </div>
+            </div>
+
+            <button type="button" class="close-json-modal" aria-label="Cerrar modal de JSON">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="controls-container">
+        <button id="openAddTrainingModal" class="primary-btn">
+            <span class="btn-icon">➕</span>
+            <span class="btn-text">Añadir Parte</span>
+        </button>
+        <div class="threshold-controls">
+        <label for="ritmoUmbral">Ritmo Umbral (min/km):</label>
+            <input type="text" id="ritmoUmbral" value="5:00" pattern="^\d+:\d{2}$" title="Formato: mm:ss (ej: 5:00)">
+            <button id="applyUmbral" class="secondary-btn">Aplicar</button>
+        </div>
+    </div>
+    
+    <!-- Add Training Modal -->
+    <div id="addTrainingModal" class="modal hidden">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>Añadir Nueva Parte de Entrenamiento</h3>
+                <button class="close-modal" id="closeAddTrainingModal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="form" novalidate>
+                    <!-- Form content remains the same but moves inside modal -->
+                    <div class="form-group">
+                        <label for="nombre">Nombre de la parte:</label>
+                        <input type="text" name="nombre" id="nombre" required>
+                    </div>
+
+                    <!-- Part Type Selector -->
+                    <div class="intensity-selector part-type-selector">
+                        <label for="partType">Tipo de parte:</label>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Normal</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="partType">
+                                <span class="toggle-slider"></span>
+                        </label>
+                            <span class="toggle-label">Serie</span>
+                        </div>
+                    </div>
+
+                    <!-- Normal Part Configuration -->
+                    <div id="normalConfig">
+                        <!-- Intensity Selector -->
+                        <div class="intensity-selector">
+                            <label for="intensityType">Tipo de intensidad:</label>
+                            <div class="toggle-container">
+                                <span class="toggle-label">Zona</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="intensityType">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">RPE</span>
+                            </div>
+                            <div class="intensity-info" id="intensityInfo">
+                                <p>🔵 <strong>Zona:</strong> Basada en % del ritmo umbral</p>
+                                <p>🔴 <strong>RPE:</strong> Escala de esfuerzo percibido (0-10)</p>
+                            </div>
+                        </div>
+
+                        <!-- Zone Range Slider -->
+                        <div id="zoneRangeSliderContainer" class="slider-container">
+                            <label>Rango de zonas:</label>
+                            <div id="zoneRangeSlider" class="dual-slider"></div>
+                            <div class="slider-values">
+                                <span>Rápido: <span id="zoneRangeFast">100</span></span>
+                                <span>Lento: <span id="zoneRangeSlow">100</span></span>
+                            </div>
+                        </div>
+
+                        <!-- RPE Slider -->
+                        <div id="rpeSlider" class="slider-container" style="display: none;">
+                            <label for="indiceSliderRPE">RPE (Esfuerzo Percibido):</label>
+                            <input type="range" id="indiceSliderRPE" min="0" max="10" step="1" value="5">
+                            <span id="sliderValueRPE">5</span>
+                        </div>
+            
+                        <!-- Duration Type Selector -->
+                        <div class="duration-selector">
+                            <label for="durationType">Tipo de duración:</label>
+                            <div class="toggle-container">
+                                <span class="toggle-label">Tiempo</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="durationType">
+                                    <span class="toggle-slider"></span>
+                        </label>
+                                <span class="toggle-label">Kilómetros</span>
+                            </div>
+                        </div>
+
+                        <!-- Time Input -->
+                        <div id="timeInput" class="form-group">
+                            <label for="duracion">Duración (mm:ss):</label>
+                            <input type="text" name="duracion" placeholder="ej: 5:30" pattern="^\d+:\d{2}$">
+                    </div>
+                    
+                        <!-- Kilometers Input -->
+                        <div id="kmInput" class="form-group" style="display: none;">
+                            <label for="kilometrosInput">Kilómetros:</label>
+                            <input type="number" id="kilometrosInput" placeholder="ej: 1.5" step="0.1" min="0.1">
+                        </div>
+                    </div>
+                    
+                    <!-- Series Configuration -->
+                    <div id="seriesConfig" style="display: none;">
+                        <!-- Work Phase -->
+                        <div class="series-phase">
+                            <h4>🏃‍♂️ Fase de Trabajo</h4>
+                            
+                            <!-- Work Intensity -->
+                            <div class="intensity-selector">
+                                <label for="workIntensityType">Intensidad:</label>
+                                <div class="toggle-container">
+                                    <span class="toggle-label">Zona</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="workIntensityType">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="toggle-label">RPE</span>
+                    </div>
+            </div>
+            
+                            <!-- Work Zone Slider -->
+                            <div id="workZoneSlider" class="slider-container">
+                                <label>Rango de zonas:</label>
+                                <div id="workZoneRangeSlider" class="dual-slider"></div>
+                                <div class="slider-values">
+                                    <span>Rápido: <span id="workZoneRangeFast">100</span></span>
+                                    <span>Lento: <span id="workZoneRangeSlow">100</span></span>
+            </div>
+        </div>
+        
+                            <!-- Work RPE Slider -->
+                            <div id="workRpeSlider" class="slider-container" style="display: none;">
+                                <label for="workRpeInput">RPE:</label>
+                                <input type="range" id="workRpeInput" min="0" max="10" step="1" value="7">
+                                <span id="workRpeValue">7</span>
+                            </div>
+
+                            <!-- Work Duration Type -->
+                            <div class="duration-selector">
+                                <label for="workDurationType">Tipo de duración:</label>
+                                <div class="toggle-container">
+                                    <span class="toggle-label">Tiempo</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="workDurationType">
+                                        <span class="toggle-slider"></span>
+                        </label>
+                                    <span class="toggle-label">Kilómetros</span>
+                        </div>
+                    </div>
+
+                            <!-- Work Time Input -->
+                            <div id="workTimeInput" class="form-group">
+                                <label for="workDurationInput">Duración (mm:ss):</label>
+                                <input type="text" id="workDurationInput" placeholder="ej: 3:00" pattern="^\d+:\d{2}$">
+                            </div>
+
+                            <!-- Work Kilometers Input -->
+                            <div id="workKmInput" class="form-group" style="display: none;">
+                                <label for="workKilometersInput">Kilómetros:</label>
+                                <input type="number" id="workKilometersInput" placeholder="ej: 1.0" step="0.1" min="0.1">
+                            </div>
+                        </div>
+
+                        <!-- Rest Phase -->
+                        <div class="series-phase">
+                            <h4>😴 Fase de Descanso</h4>
+                            
+                            <!-- Rest Intensity -->
+                            <div class="intensity-selector">
+                                <label for="restIntensityType">Intensidad:</label>
+                                <div class="toggle-container">
+                                    <span class="toggle-label">Zona</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="restIntensityType">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="toggle-label">RPE</span>
+                                </div>
+                            </div>
+
+                            <!-- Rest Zone Slider -->
+                            <div id="restZoneSlider" class="slider-container">
+                                <label>Rango de zonas:</label>
+                                <div id="restZoneRangeSlider" class="dual-slider"></div>
+                                <div class="slider-values">
+                                    <span>Rápido: <span id="restZoneRangeFast">130</span></span>
+                                    <span>Lento: <span id="restZoneRangeSlow">130</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Rest RPE Slider -->
+                            <div id="restRpeSlider" class="slider-container" style="display: none;">
+                                <label for="restRpeInput">RPE:</label>
+                                <input type="range" id="restRpeInput" min="0" max="10" step="1" value="2">
+                                <span id="restRpeValue">2</span>
+                    </div>
+
+                            <!-- Rest Duration Type -->
+                            <div class="duration-selector">
+                                <label for="restDurationType">Tipo de duración:</label>
+                                <div class="toggle-container">
+                                    <span class="toggle-label">Tiempo</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="restDurationType">
+                                        <span class="toggle-slider"></span>
+                        </label>
+                                    <span class="toggle-label">Kilómetros</span>
+                                </div>
+                            </div>
+
+                            <!-- Rest Time Input -->
+                            <div id="restTimeInput" class="form-group">
+                                <label for="restDurationInput">Duración (mm:ss):</label>
+                                <input type="text" id="restDurationInput" placeholder="ej: 1:30" pattern="^\d+:\d{2}$">
+                            </div>
+
+                            <!-- Rest Kilometers Input -->
+                            <div id="restKmInput" class="form-group" style="display: none;">
+                                <label for="restKilometersInput">Kilómetros:</label>
+                                <input type="number" id="restKilometersInput" placeholder="ej: 0.2" step="0.1" min="0.1">
+                            </div>
+                        </div>
+
+                        <!-- Repetitions -->
+                        <div class="form-group">
+                            <label for="repetitionsInput">Repeticiones:</label>
+                            <input type="number" id="repetitionsInput" value="1" min="1" max="20">
+                    </div>
+                    
+                        <!-- Series Preview -->
+                        <div id="seriesPreview" class="preview-container"></div>
+                    </div>
+                    
+                    <!-- Preview Container -->
+                    <div id="previewKms" class="preview-container"></div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="primary-btn">
+                            <span class="btn-icon">✅</span>
+                            <span class="btn-text">Añadir Parte</span>
+                        </button>
+                        <button type="button" id="cancelAddTraining" class="secondary-btn">
+                            <span class="btn-icon">❌</span>
+                            <span class="btn-text">Cancelar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="clipboard-container" role="status" aria-live="polite">
+        <p>🗒️ Elementos copiados: <span id="clipboard-count">0</span></p>
+        <button onclick="pasteElements()" aria-describedby="pasteHelp">📋 Pegar</button>
+        <small id="pasteHelp" class="help-text">Ctrl+V</small>
+        <button onclick="clearClipboard()">❌ Limpiar</button>
+    </div>
+
+    
+
+    <!-- Training Graph -->
+    <div class="main-layout">
+        <div class="graph-section">
+            <div class="grafico-wrapper">
+                <div id="grafico" role="img" aria-label="Gráfico visual del entrenamiento"></div>
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <div id="summaryBar" role="status" aria-live="polite">
+                <div class="summary-stats">
+                    <!-- Los totales se insertarán aquí mediante JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="selection-toolbar" id="selectionToolbar" role="toolbar" aria-label="Acciones para elementos seleccionados">
+        <span class="selection-count">0 elementos seleccionados</span>
+        <button onclick="createGroupFromSelection()" aria-describedby="createGroupHelp">📦 Crear Grupo</button>
+        <small id="createGroupHelp" class="help-text">Ctrl+G</small>
+        <button onclick="duplicateSelected()">📋 Duplicar</button>
+        <button onclick="deleteSelected()" aria-describedby="deleteHelp">🗑️ Eliminar</button>
+        <small id="deleteHelp" class="help-text">Delete</small>
+    </div>
+
+    <div id="partsContainer" class="parts-table" role="main" aria-label="Contenedor principal de entrenamientos"></div>
+
+    <!-- Add confirmation modal -->
+    <div id="groupConfirmModal" class="modal confirmation" role="dialog" aria-labelledby="groupConfirmTitle" aria-modal="true">
+        <div class="confirmation-content">
+            <h3 id="groupConfirmTitle">Confirmar Agrupación</h3>
+            <p id="groupConfirmMessage">¿Quieres agrupar estos elementos?</p>
+            <div class="confirmation-buttons">
+                <button class="confirm-yes" id="confirmGroup">Sí, agrupar</button>
+                <button class="confirm-no" id="cancelGroup">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Training Modal -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>✏️ Editar Parte</h3>
+                <button id="cancel-edit" class="close-modal" aria-label="Cerrar modal">❌</button>
+            </div>
+            <form id="edit-form" novalidate>
+                <!-- Part Name -->
+                <div class="form-group">
+                    <label for="edit-nombre">Nombre de la parte:</label>
+                    <input type="text" name="nombre" id="edit-nombre" required>
+                </div>
+
+                <!-- Part Type Toggle -->
+                <div class="form-group">
+                    <label for="edit-partType">Tipo de parte:</label>
+                    <div class="toggle-container">
+                        <span class="toggle-label">Normal</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="edit-partType">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Serie</span>
+                    </div>
+                </div>
+
+                <!-- Normal Part Configuration -->
+                <div id="edit-normalConfig">
+                    <!-- Intensity Selector -->
+                    <div class="intensity-selector">
+                        <label for="edit-intensityType">Tipo de intensidad:</label>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Zona</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="edit-intensityType">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">RPE</span>
+                        </div>
+                    </div>
+
+                    <!-- Zone Range Slider -->
+                    <div id="edit-zoneRangeSliderContainer" class="slider-container">
+                        <label>Rango de zonas:</label>
+                        <div id="edit-zoneRangeSlider" class="dual-slider"></div>
+                        <div class="slider-values">
+                            <span>Rápido: <span id="edit-zoneRangeFast">100</span></span>
+                            <span>Lento: <span id="edit-zoneRangeSlow">100</span></span>
+                        </div>
+                    </div>
+
+                    <!-- RPE Slider -->
+                    <div id="edit-rpeSlider" class="slider-container" style="display: none;">
+                        <label for="edit-indiceSliderRPE">RPE (Esfuerzo Percibido):</label>
+                        <input type="range" id="edit-indiceSliderRPE" name="edit-indice" min="0" max="10" step="1" value="5">
+                        <span id="edit-sliderValueRPE">5</span>
+                    </div>
+
+                    <!-- Duration Type Selector -->
+                    <div class="duration-selector">
+                        <label for="edit-durationType">Tipo de duración:</label>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Tiempo</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="edit-durationType">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">Kilómetros</span>
+                        </div>
+                    </div>
+
+                    <!-- Time Input -->
+                    <div id="edit-timeInput" class="form-group">
+                        <label for="edit-duracion">Duración (mm:ss):</label>
+                        <input type="text" name="duracion" id="edit-duracion" placeholder="ej: 5:30" pattern="^\d+:\d{2}$">
+                    </div>
+
+                    <!-- Kilometers Input -->
+                    <div id="edit-kmInput" class="form-group" style="display: none;">
+                        <label for="edit-kilometrosInput">Kilómetros:</label>
+                        <input type="number" id="edit-kilometrosInput" placeholder="ej: 1.5" step="0.1" min="0.1">
+                    </div>
+                </div>
+
+                <!-- Edit Series Configuration -->
+                <div id="edit-seriesConfig" style="display: none;">
+                    <!-- Work Phase -->
+                    <div class="series-phase">
+                        <h4>🏃‍♂️ Fase de Trabajo</h4>
+                        
+                        <!-- Work Intensity -->
+                        <div class="intensity-selector">
+                            <label for="edit-workIntensityType">Intensidad:</label>
+                            <div class="toggle-container">
+                                <span class="toggle-label">Zona</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="edit-workIntensityType">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">RPE</span>
+                            </div>
+                        </div>
+
+                        <!-- Work Zone Slider -->
+                        <div id="edit-workZoneSlider" class="slider-container">
+                            <label>Rango de zonas:</label>
+                            <div id="edit-workZoneRangeSlider" class="dual-slider"></div>
+                            <div class="slider-values">
+                                <span>Rápido: <span id="edit-workZoneRangeFast">100</span></span>
+                                <span>Lento: <span id="edit-workZoneRangeSlow">100</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Work RPE Slider -->
+                        <div id="edit-workRpeSlider" class="slider-container" style="display: none;">
+                            <label for="edit-workRpeInput">RPE:</label>
+                            <input type="range" id="edit-workRpeInput" min="0" max="10" step="1" value="7">
+                            <span id="edit-workRpeValue">7</span>
+                        </div>
+
+                        <!-- Work Duration Type -->
+                        <div class="duration-selector">
+                            <label for="edit-workDurationType">Tipo de duración:</label>
+                            <div class="toggle-container">
+                                <span class="toggle-label">Tiempo</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="edit-workDurationType">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">Kilómetros</span>
+                            </div>
+                        </div>
+
+                        <!-- Work Time Input -->
+                        <div id="edit-workTimeInput" class="form-group">
+                            <label for="edit-workDurationInput">Duración (mm:ss):</label>
+                            <input type="text" id="edit-workDurationInput" placeholder="ej: 3:00" pattern="^\d+:\d{2}$">
+                        </div>
+
+                        <!-- Work Kilometers Input -->
+                        <div id="edit-workKmInput" class="form-group" style="display: none;">
+                            <label for="edit-workKilometersInput">Kilómetros:</label>
+                            <input type="number" id="edit-workKilometersInput" placeholder="ej: 1.0" step="0.1" min="0.1">
+                        </div>
+                    </div>
+
+                    <!-- Rest Phase -->
+                    <div class="series-phase">
+                        <h4>😴 Fase de Descanso</h4>
+                        
+                        <!-- Rest Intensity -->
+                        <div class="intensity-selector">
+                            <label for="edit-restIntensityType">Intensidad:</label>
+                            <div class="toggle-container">
+                                <span class="toggle-label">Zona</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="edit-restIntensityType">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">RPE</span>
+                            </div>
+                        </div>
+
+                        <!-- Rest Zone Slider -->
+                        <div id="edit-restZoneSlider" class="slider-container">
+                            <label>Rango de zonas:</label>
+                            <div id="edit-restZoneRangeSlider" class="dual-slider"></div>
+                            <div class="slider-values">
+                                <span>Rápido: <span id="edit-restZoneRangeFast">130</span></span>
+                                <span>Lento: <span id="edit-restZoneRangeSlow">130</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Rest RPE Slider -->
+                        <div id="edit-restRpeSlider" class="slider-container" style="display: none;">
+                            <label for="edit-restRpeInput">RPE:</label>
+                            <input type="range" id="edit-restRpeInput" min="0" max="10" step="1" value="2">
+                            <span id="edit-restRpeValue">2</span>
+                        </div>
+
+                        <!-- Rest Duration Type -->
+                        <div class="duration-selector">
+                            <label for="edit-restDurationType">Tipo de duración:</label>
+                            <div class="toggle-container">
+                                <span class="toggle-label">Tiempo</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="edit-restDurationType">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">Kilómetros</span>
+                            </div>
+                        </div>
+
+                        <!-- Rest Time Input -->
+                        <div id="edit-restTimeInput" class="form-group">
+                            <label for="edit-restDurationInput">Duración (mm:ss):</label>
+                            <input type="text" id="edit-restDurationInput" placeholder="ej: 1:30" pattern="^\d+:\d{2}$">
+                        </div>
+
+                        <!-- Rest Kilometers Input -->
+                        <div id="edit-restKmInput" class="form-group" style="display: none;">
+                            <label for="edit-restKilometersInput">Kilómetros:</label>
+                            <input type="number" id="edit-restKilometersInput" placeholder="ej: 0.2" step="0.1" min="0.1">
+                        </div>
+                    </div>
+
+                    <!-- Repetitions -->
+                    <div class="form-group">
+                        <label for="edit-repetitionsInput">Repeticiones:</label>
+                        <input type="number" id="edit-repetitionsInput" value="1" min="1" max="20">
+                    </div>
+
+                    <!-- Series Preview -->
+                    <div id="edit-seriesPreview" class="preview-container"></div>
+                </div>
+
+                <!-- Edit Preview Container -->
+                <div id="edit-previewKms" class="preview-container"></div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">
+                        <span class="btn-icon">💾</span>
+                        <span class="btn-text">Guardar Cambios</span>
+                    </button>
+                    <button type="button" id="cancel-edit-2" class="secondary-btn">
+                        <span class="btn-icon">❌</span>
+                        <span class="btn-text">Cancelar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="graph_sporty.js" defer></script>
+</body>
+</html>
+  
