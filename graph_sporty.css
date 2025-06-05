@@ -914,6 +914,8 @@ input:checked + .toggle-slider:hover:after {
   margin-top: 1rem; /* Add top margin to prevent collision with controls */
   width: 100%; /* Ensure it takes full width */
   align-items: flex-start; /* Align items to the top */
+  background: #99ff99;
+  border-radius: 8px;
 }
 
 .main-order-container {
@@ -2195,7 +2197,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     gap: 1rem;
     margin: 1rem 0;
     padding: 0.75rem;
-    background: var(--surface);
+    background: #00ff00;
     border: 1px solid var(--border);
     border-radius: 8px;
 }
@@ -2208,7 +2210,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     gap: 1rem;
     margin: 2rem 0 2rem 0;
     padding: 0.75rem;
-    background: var(--surface);
+    background: #66ff66;
     border: 1px solid var(--border);
     border-radius: 8px;
 }
@@ -2270,6 +2272,9 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   margin-bottom: 3rem;
   height: 450px;
   align-items: stretch;
+  background: #33ff33;
+  padding: 1rem;
+  border-radius: 8px;
 }
 
 .graph-section {
