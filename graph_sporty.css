@@ -2648,7 +2648,8 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 }
 
 /* Order display in compact header */
-.part-card.compact .compact-order {
+.part-card.compact .compact-order,
+.part-card.expanded .compact-order {
   position: absolute;
   left: -35px;
   top: 50%;
@@ -2662,6 +2663,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   min-width: 28px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 10;
 }
 
 /* Toggle Button Styling */

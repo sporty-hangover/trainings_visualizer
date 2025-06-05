@@ -4278,6 +4278,12 @@ function removeCompactModeFromAllCards() {
             compactInfo.remove();
         }
         
+        // Remove persistent order badge
+        const orderBadge = card.querySelector('.compact-order');
+        if (orderBadge) {
+            orderBadge.remove();
+        }
+        
         removeToggleButton(card);
         removeCompactOrder(card);
     });
@@ -4401,13 +4407,29 @@ function createCompactLayout(card) {
     const statsContainer = document.createElement('div');
     statsContainer.className = 'compact-stats';
     
+    // Calculate stats based on type
+    let totalDuration = 0;
+    let totalKms = 0;
+    
+    if (isGroup) {
+        // Calculate totals for group
+        if (part.parts && part.parts.length > 0) {
+            part.parts.forEach(groupPart => {
+                totalDuration += groupPart.totalDuration || groupPart.duracion || 0;
+                totalKms += groupPart.approxKms || calculateApproxKms(groupPart);
+            });
+        }
+    } else {
+        totalDuration = part.totalDuration || part.duracion || 0;
+        totalKms = part.approxKms || calculateApproxKms(part);
+    }
+    
     // Duration stat
-    const durationStat = createCompactStat('Duración', formatDuration(part.totalDuration || part.duracion || 0));
+    const durationStat = createCompactStat('Duración', formatDuration(totalDuration));
     statsContainer.appendChild(durationStat);
     
     // Distance stat
-    const approxKms = part.approxKms || calculateApproxKms(part);
-    const kmsStat = createCompactStat('Kms', `~${approxKms.toFixed(2)}`);
+    const kmsStat = createCompactStat('Kms', `~${totalKms.toFixed(2)}`);
     statsContainer.appendChild(kmsStat);
     
     // Order stat
@@ -4440,6 +4462,9 @@ function createCompactLayout(card) {
     
     // Insert the compact layout
     card.insertBefore(compactInfo, card.firstChild);
+    
+    // Also add persistent order badge
+    addPersistentOrderBadge(card, orderValue);
 }
 
 function createCompactStat(label, value) {
@@ -4458,6 +4483,18 @@ function createCompactStat(label, value) {
     stat.appendChild(valueEl);
     
     return stat;
+}
+
+function addPersistentOrderBadge(card, orderValue) {
+    // Check if order badge already exists
+    if (card.querySelector('.compact-order')) return;
+    
+    const orderBadge = document.createElement('div');
+    orderBadge.className = 'compact-order';
+    orderBadge.textContent = orderValue;
+    
+    // Add to card
+    card.appendChild(orderBadge);
 }
     
 function observeForNewCards() {
