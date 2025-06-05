@@ -2205,7 +2205,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    margin: 1rem 0;
+    margin: 2rem 0 1rem 0;
     padding: 0.75rem;
     background: var(--surface);
     border: 1px solid var(--border);
