@@ -142,8 +142,8 @@ button {
 }
 
 .grafico-wrapper {
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--primary);
+  border: 1px solid var(--red-dark);
   border-radius: 12px;
   padding: 1rem;
   min-height: 500px;
@@ -156,9 +156,9 @@ button {
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  background: var(--primary);
+  border: 1px solid var(--red-dark);
+  border-radius: 12px;
   padding: 1vw;
   position: relative;
   flex: 1;
@@ -166,7 +166,7 @@ button {
 }
 
 .barra {
-  background: linear-gradient(to top, var(--primary), var(--red-dark));
+  background: var(--cream);
   margin: 0 2px;
   display: flex;
   flex-direction: column;
@@ -178,20 +178,20 @@ button {
   text-align: center;
   border-radius: 4px 4px 0 0;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .barra:hover {
-  background: linear-gradient(to top, var(--primary-hover), var(--primary));
+  background: var(--cream-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(227, 39, 39, 0.4);
-  color: var(--cream); /* Show text on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: var(--text-on-light); /* Show text on hover */
 }
 
 .graph-label {
   position: absolute;
   font-weight: bold;
-  color: var(--text-muted-light);
+  color: white;
   font-size: 0.9rem;
 }
 
