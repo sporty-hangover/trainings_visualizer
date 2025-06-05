@@ -4,6 +4,8 @@
 let partesEntreno = []; 
 // Stores group objects. Each group object contains an array of its member parts.
 let groups = [];
+// Stores the ID of the part being edited
+let editingPartId = null;
 // Stores training part objects that have been copied to the clipboard.
 let clipboard = [];
 // A Set to keep track of the IDs of currently selected training parts.
@@ -2441,7 +2443,121 @@ function getCurrentDuration() {
  * Placeholder functions for edit operations that would be implemented based on needs.
  */
 function editParte(partId) {
-    alert(`Edit function for part ${partId} - To be implemented`);
+    const part = findPartByIdGlobal(partId, partesEntreno, groups);
+    if (!part) {
+        showNotification('No se pudo encontrar la parte seleccionada', 'error');
+        return;
+    }
+    
+    // Store the part being edited
+    editingPartId = partId;
+    
+    // Populate the form with existing values
+    populateFormForEdit(part);
+    
+    // Change modal title and button text
+    const modal = document.getElementById('addTrainingModal');
+    const modalTitle = modal.querySelector('.modal-title');
+    const submitBtn = modal.querySelector('.submit-btn');
+    
+    modalTitle.textContent = 'Editar Parte de Entrenamiento';
+    submitBtn.textContent = 'Actualizar Parte';
+    
+    // Add editing flag to the modal
+    modal.setAttribute('data-editing', 'true');
+    
+    // Show the modal
+    showAddTrainingModal();
+}
+
+/**
+ * Populates the form with existing part data for editing
+ */
+function populateFormForEdit(part) {
+    // Reset form first
+    resetForm();
+    
+    // Fill in basic info
+    document.getElementById('nombreParte').value = part.nombre || '';
+    
+    // Check if it's a series or single part
+    if (part.type === 'series') {
+        // Set part type to series
+        document.getElementById('partType').value = 'series';
+        updatePartTypeVisibility();
+        
+        // Fill series data
+        document.getElementById('repetitions').value = part.repetitions || 1;
+        
+        // Populate work phase
+        if (part.workConfig) {
+            populatePhaseForm(part.workConfig, 'work');
+        }
+        
+        // Populate rest phase
+        if (part.restConfig) {
+            populatePhaseForm(part.restConfig, 'rest');
+        }
+        
+    } else {
+        // Single part
+        document.getElementById('partType').value = 'single';
+        updatePartTypeVisibility();
+        
+        // Fill single part data
+        populatePhaseForm(part, 'single');
+    }
+    
+    // Update all UI elements
+    updateDurationInputVisibility();
+    updateSliderVisibility();
+}
+
+/**
+ * Populates form fields for a specific phase (work, rest, or single)
+ */
+function populatePhaseForm(config, phaseType) {
+    const prefix = phaseType === 'single' ? '' : phaseType;
+    
+    // Set duration
+    if (config.duracion) {
+        const durationField = document.getElementById(prefix + (prefix ? 'Duration' : 'duracion'));
+        if (durationField) {
+            durationField.value = config.duracion;
+        }
+    }
+    
+    // Set design type
+    if (config.designedIn) {
+        const designField = document.getElementById(prefix + (prefix ? 'DesignedIn' : 'designedIn'));
+        if (designField) {
+            designField.value = config.designedIn;
+        }
+    }
+    
+    // Set threshold type and value
+    if (config.isRPE !== undefined) {
+        const thresholdField = document.getElementById(prefix + (prefix ? 'Threshold' : 'threshold'));
+        if (thresholdField) {
+            thresholdField.value = config.isRPE ? 'rpe' : 'pace';
+        }
+    }
+    
+    // Set threshold value
+    if (config.originalValue || config.indice) {
+        const valueField = document.getElementById(prefix + (prefix ? 'Value' : 'value'));
+        if (valueField) {
+            valueField.value = config.originalValue || config.indice;
+        }
+    }
+    
+    // Update sliders if they exist
+    updateSliderVisibility();
+    if (phaseType === 'work') {
+        updateWorkSliderVisibility();
+    } else if (phaseType === 'rest') {
+        updateRestSliderVisibility();
+    }
 }
 
 function editGroup(groupId) {
@@ -2883,6 +2999,15 @@ function hideJsonModal() {
 function showAddTrainingModal() {
     const addTrainingModal = document.getElementById('addTrainingModal');
     if (addTrainingModal) {
+        // Reset editing state if opening for new part creation
+        if (!addTrainingModal.getAttribute('data-editing')) {
+            editingPartId = null;
+            const modalTitle = addTrainingModal.querySelector('.modal-title');
+            const submitBtn = addTrainingModal.querySelector('.submit-btn');
+            if (modalTitle) modalTitle.textContent = 'Añadir Parte de Entrenamiento';
+            if (submitBtn) submitBtn.textContent = 'Añadir Parte';
+        }
+        
         addTrainingModal.classList.remove('hidden');
         document.body.classList.add('modal-open');
         
@@ -3143,11 +3268,12 @@ function updatePartTypeVisibility() {
 }
 
 /**
- * Handles form submission for adding new training parts.
+ * Handles form submission for adding new training parts or editing existing ones.
  */
 function handleFormSubmission() {
     const form = document.getElementById('form');
     const nombreInput = form.querySelector('[name="nombre"]');
+    const modal = document.getElementById('addTrainingModal');
     
     if (!nombreInput || !nombreInput.value.trim()) {
         showNotification('Por favor, introduce un nombre para la parte', 'error');
@@ -3156,14 +3282,165 @@ function handleFormSubmission() {
 
     const nombre = nombreInput.value.trim();
     const partTypeToggle = document.getElementById('partType');
+    const isEditing = modal.getAttribute('data-editing') === 'true';
     
-    if (partTypeToggle && partTypeToggle.checked) {
-        // Create series
-        createSeriesFromForm(nombre);
+    if (isEditing) {
+        // Update existing part
+        updateExistingPart(nombre, partTypeToggle && partTypeToggle.checked);
     } else {
-        // Create normal part
-        createNormalPart(nombre);
+        // Create new part
+        if (partTypeToggle && partTypeToggle.checked) {
+            // Create series
+            createSeriesFromForm(nombre);
+        } else {
+            // Create normal part
+            createNormalPart(nombre);
+        }
     }
+}
+
+/**
+ * Updates an existing training part with new values from the form
+ */
+function updateExistingPart(nombre, isSeries) {
+    if (!editingPartId) {
+        showNotification('Error: No se encontró la parte a editar', 'error');
+        return;
+    }
+    
+    // Find the part to update
+    let partToUpdate = null;
+    let isInGroup = false;
+    let groupContainer = null;
+    
+    // Check in individual parts
+    partToUpdate = partesEntreno.find(p => p.id === editingPartId);
+    
+    // Check in groups if not found
+    if (!partToUpdate) {
+        for (let group of groups) {
+            const foundPart = group.parts.find(p => p.id === editingPartId);
+            if (foundPart) {
+                partToUpdate = foundPart;
+                isInGroup = true;
+                groupContainer = group;
+                break;
+            }
+        }
+    }
+    
+    if (!partToUpdate) {
+        showNotification('Error: Parte no encontrada', 'error');
+        return;
+    }
+    
+    // Update the part based on type
+    if (isSeries) {
+        updateSeriesFromForm(partToUpdate, nombre);
+    } else {
+        updateNormalPartFromForm(partToUpdate, nombre);
+    }
+    
+    // Clear editing state
+    editingPartId = null;
+    const modal = document.getElementById('addTrainingModal');
+    modal.removeAttribute('data-editing');
+    
+    // Reset modal title and button
+    const modalTitle = modal.querySelector('.modal-title');
+    const submitBtn = modal.querySelector('.submit-btn');
+    modalTitle.textContent = 'Añadir Parte de Entrenamiento';
+    submitBtn.textContent = 'Añadir Parte';
+    
+    // Update UI
+    render();
+    
+    // Reset and close
+    resetForm();
+    hideAddTrainingModal();
+    
+    showNotification(`Parte "${nombre}" actualizada correctamente`, 'success');
+}
+
+/**
+ * Updates a series part with form data
+ */
+function updateSeriesFromForm(partToUpdate, nombre) {
+    // Get configurations
+    const workConfig = getWorkPhaseConfig();
+    const restConfig = getRestPhaseConfig();
+    
+    if (!workConfig || !restConfig) {
+        showNotification('Error en la configuración de las fases', 'error');
+        return;
+    }
+    
+    // Get repetitions
+    const repetitionsInput = document.getElementById('repetitionsInput');
+    const repetitions = repetitionsInput ? parseInt(repetitionsInput.value) || 1 : 1;
+    
+    // Update the part
+    partToUpdate.nombre = nombre;
+    partToUpdate.workConfig = workConfig;
+    partToUpdate.restConfig = restConfig;
+    partToUpdate.repetitions = repetitions;
+    partToUpdate.type = 'series';
+    
+    // Recalculate derived properties
+    partToUpdate.approxKms = calculateApproxKms(partToUpdate);
+    partToUpdate.totalDuration = getSeriesTotalDuration(partToUpdate);
+}
+
+/**
+ * Updates a normal part with form data
+ */
+function updateNormalPartFromForm(partToUpdate, nombre) {
+    // Get form values
+    const thresholdSelect = document.getElementById('threshold');
+    const valueInput = document.getElementById('value');
+    const duracionInput = document.getElementById('duracion');
+    const designedInSelect = document.getElementById('designedIn');
+    
+    if (!thresholdSelect || !valueInput || !duracionInput || !designedInSelect) {
+        showNotification('Error: Campos del formulario no encontrados', 'error');
+        return;
+    }
+    
+    const isRPE = thresholdSelect.value === 'rpe';
+    const indice = parseFloat(valueInput.value) || 0;
+    const originalValue = isRPE ? indice : parseFloat(valueInput.value);
+    const designedIn = designedInSelect.value;
+    
+    let duracion;
+    if (designedIn === 'distance') {
+        // Calculate duration from distance
+        const km = parseFloat(duracionInput.value) || 0;
+        const umbralPaceSeconds = paceToSeconds(ritmoUmbralInput.value || "5:00");
+        let paceSeconds;
+        
+        if (isRPE) {
+            const zoneValue = RPE_ZONE_MAX - (indice / 10) * (RPE_ZONE_MAX - RPE_ZONE_MIN);
+            paceSeconds = umbralPaceSeconds * (zoneValue / 100);
+        } else {
+            paceSeconds = umbralPaceSeconds * (indice / 100);
+        }
+        
+        duracion = Math.round(km * paceSeconds);
+    } else {
+        duracion = parseDuration(duracionInput.value);
+    }
+    
+    // Update the part
+    partToUpdate.nombre = nombre;
+    partToUpdate.indice = indice;
+    partToUpdate.duracion = duracion;
+    partToUpdate.isRPE = isRPE;
+    partToUpdate.originalValue = originalValue;
+    partToUpdate.designedIn = designedIn;
+    partToUpdate.type = 'single';
+    
+    // Recalculate derived properties
+    partToUpdate.approxKms = calculateApproxKms(partToUpdate);
 }
 
 /**
@@ -3465,6 +3742,17 @@ function resetForm() {
         if (intensityTypeToggle) intensityTypeToggle.checked = false;
         if (durationTypeToggle) durationTypeToggle.checked = false;
         if (partTypeToggle) partTypeToggle.checked = false;
+        
+        // Reset editing state
+        editingPartId = null;
+        const modal = document.getElementById('addTrainingModal');
+        if (modal) {
+            modal.removeAttribute('data-editing');
+            const modalTitle = modal.querySelector('.modal-title');
+            const submitBtn = modal.querySelector('.submit-btn');
+            if (modalTitle) modalTitle.textContent = 'Añadir Parte de Entrenamiento';
+            if (submitBtn) submitBtn.textContent = 'Añadir Parte';
+        }
         
         // Update visibility
         updateSliderVisibility();

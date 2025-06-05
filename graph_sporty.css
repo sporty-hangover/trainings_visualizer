@@ -2606,22 +2606,41 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 /* Compact Card Styles - Default State */
 .part-card.compact,
 .group-card.compact {
-  height: 180px; /* Fixed height for uniform sizing */
-  min-height: 180px;
-  max-height: 180px;
+  height: 120px; /* Reduced height for more compact design */
+  min-height: 120px;
+  max-height: 120px;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  padding: 0.8rem;
 }
 
 /* Compact Card Header - Always Visible */
 .part-card.compact .part-card-header,
 .group-card.compact .group-card-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
+  min-height: 24px;
+}
+
+/* Improved compact title styling */
+.part-card.compact .part-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.part-card.compact .part-card-title small {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  font-weight: 400;
+  margin-top: 0.1rem;
 }
 
 /* Order display in compact header */
@@ -2633,34 +2652,36 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   background: var(--primary);
   color: white;
   padding: 0.2rem 0.4rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.7rem;
-  font-weight: 600;
-  min-width: 25px;
+  font-weight: 700;
+  min-width: 28px;
   text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* Toggle Button Styling */
 .card-toggle-btn {
-  background: transparent;
+  background: var(--primary);
   border: none;
-  color: var(--text-secondary);
-  font-size: 1.2rem;
+  color: white;
+  font-size: 0.9rem;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
+  padding: 0.2rem;
+  border-radius: 6px;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .card-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--primary);
-  transform: scale(1.1);
+  background: var(--primary-hover);
+  transform: scale(1.05);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
 }
 
 .card-toggle-btn:focus {
@@ -2681,10 +2702,13 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 /* Compact Mode - Limited Visible Content */
 .part-card.compact .part-card-body {
-  max-height: 80px;
+  max-height: 50px;
   overflow: hidden;
   position: relative;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .part-card.compact .part-card-actions {
@@ -2709,9 +2733,28 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 .part-card.compact .part-card-stat.essential {
   display: flex;
-  margin-bottom: 0.4rem;
-  padding: 0.4rem 0.6rem;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.part-card.compact .part-card-stat.essential span:first-child {
+  font-weight: 500;
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-bottom: 0.1rem;
+}
+
+.part-card.compact .part-card-stat.essential span:last-child {
+  font-weight: 700;
   font-size: 0.85rem;
+  color: var(--primary);
 }
 
 /* Expanded State */
