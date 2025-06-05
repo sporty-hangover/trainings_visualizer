@@ -1627,6 +1627,7 @@ function createPartCard(parte) {
         </div>
         <div class="part-card-header">
             <span class="part-card-title">${nombre} <small style="opacity: 0.7; font-size: 0.8em;">(diseñado por ${(parte.designedIn === 'distance') ? 'distancia' : 'tiempo'})</small></span>
+            <span class="order-badge">#${displayOrder.replace(/[GI]/g, '')}</span>
         </div>
         <div class="part-card-body">
             <div class="part-card-stat approximate">
@@ -1636,10 +1637,6 @@ function createPartCard(parte) {
             <div class="part-card-stat approximate">
                 <span>Kms aprox:</span>
                 <span>~${approxKms.toFixed(2)} km</span>
-            </div>
-            <div class="part-card-stat order-display">
-                <span>Orden:</span>
-                <span>${displayOrder}</span>
             </div>
             <div class="part-card-stat">
                 <span>Intensidad:</span>
@@ -1732,6 +1729,7 @@ function createSeriesCard(series) {
         </div>
         <div class="part-card-header">
             <span class="part-card-title">⚡ ${nombre} <small style="opacity: 0.7; font-size: 0.8em;">(serie x${repetitions})</small></span>
+            <span class="order-badge">#${displayOrder.replace(/[GI]/g, '')}</span>
         </div>
         <div class="part-card-body">
             <div class="part-card-stat approximate">
@@ -1741,10 +1739,6 @@ function createSeriesCard(series) {
             <div class="part-card-stat approximate">
                 <span>Total Distancia:</span>
                 <span>~${totalKms.toFixed(2)} km</span>
-            </div>
-            <div class="part-card-stat order-display">
-                <span>Orden:</span>
-                <span>${displayOrder}</span>
             </div>
             <div class="series-totals">
             </div>
@@ -2005,7 +1999,7 @@ function rebuildStateFromDOM() {
 function createGroupCard(group) {
     const { id, name, parts = [], generalOrder, order } = group;
     
-    // Determine display order
+    // Determine display order (consistent with parts and series)
     let displayOrder;
     if (generalOrder !== undefined && generalOrder !== null) {
         displayOrder = `G${generalOrder}`;
@@ -2015,7 +2009,7 @@ function createGroupCard(group) {
         displayOrder = '-';
     }
 
-    // Calculate group totals
+    // Calculate group totals (consistent calculation)
     let totalDuration = 0;
     let totalKms = 0;
     parts.forEach(part => {
@@ -2028,101 +2022,66 @@ function createGroupCard(group) {
     });
 
     const groupCard = document.createElement("div");
-    groupCard.className = "group-card";
+    groupCard.className = "part-card group-card"; // Use same base class as parts/series
     groupCard.setAttribute("data-group-id", id);
     groupCard.setAttribute("data-id", id);
     groupCard.setAttribute("data-type", "group");
     groupCard.draggable = true;
 
-    // Create enhanced parts list HTML with detailed info and actions
+    // Create parts breakdown for expanded view (clean, simple list)
     const partsListHTML = parts.map((part, index) => {
-        const umbralPaceSeconds = paceToSeconds(ritmoUmbralInput.value || "5:00");
-        let paceSeconds, paceDisplay;
-        
-        if (part.type === 'series') {
-            // For series, show work phase pace
-            if (part.workConfig.isRPE) {
-                const zoneValue = RPE_ZONE_MAX - (part.workConfig.indice / 10) * (RPE_ZONE_MAX - RPE_ZONE_MIN);
-                paceSeconds = umbralPaceSeconds * (zoneValue / 100);
-            } else {
-                paceSeconds = umbralPaceSeconds * (part.workConfig.indice / 100);
-            }
-            paceDisplay = formatPaceMinKm(paceSeconds);
-        } else {
-            // For regular parts
-            if (part.isRPE) {
-                const zoneValue = RPE_ZONE_MAX - (part.indice / 10) * (RPE_ZONE_MAX - RPE_ZONE_MIN);
-                paceSeconds = umbralPaceSeconds * (zoneValue / 100);
-            } else {
-                paceSeconds = umbralPaceSeconds * (part.indice / 100);
-            }
-            paceDisplay = formatPaceMinKm(paceSeconds);
-        }
-        
         const approxKms = calculateApproxKms(part);
         
         return `
-        <div class="group-part-item enhanced" data-part-id="${part.id}">
-            <div class="group-part-header">
-                <span class="group-part-number">I${index + 1}.</span>
+        <div class="group-part-item" data-part-id="${part.id}">
+            <span class="group-part-number">I${index + 1}</span>
             <span class="group-part-name">${part.nombre}</span>
-                <div class="group-part-actions">
-                    <button onclick="editParte('${part.id}')" class="btn-mini tooltip" title="Editar parte">✏️</button>
-                    <button onclick="movePartOutOfGroup('${part.id}', '${id}')" class="btn-mini tooltip" title="Sacar del grupo">↗️</button>
-                    <button onclick="deleteSinglePart('${part.id}')" class="btn-mini tooltip" title="Eliminar parte">🗑️</button>
-                </div>
-            </div>
             <div class="group-part-details">
                 ${part.type === 'series' ? 
-                    `<div class="series-info">
-                        <span class="part-type">⚡ Serie x${part.repetitions}</span>
-                        <span class="duration-info">${formatDuration(getSeriesTotalDuration(part))} min total</span>
-                        <span class="pace-info">~${paceDisplay} min/km</span>
-                        <span class="distance-info">~${approxKms.toFixed(2)} km</span>
-                    </div>` : 
-                    `<div class="part-info">
-                        <span class="intensity-info">${part.isRPE ? 'RPE' : 'Zona'} ${part.indice}</span>
-                        <span class="duration-info">${formatDuration(part.duracion)} min</span>
-                        <span class="pace-info">~${paceDisplay} min/km</span>
-                        <span class="distance-info">~${approxKms.toFixed(2)} km</span>
-                    </div>`
+                    `<span>Serie x${part.repetitions} • ${formatDuration(getSeriesTotalDuration(part))} min • ~${approxKms.toFixed(2)} km</span>` : 
+                    `<span>${part.isRPE ? 'RPE' : 'Zona'} ${part.indice} • ${formatDuration(part.duracion)} min • ~${approxKms.toFixed(2)} km</span>`
                 }
-        </div>
+            </div>
+            <div class="group-part-actions">
+                <button onclick="editParte('${part.id}')" class="btn-mini tooltip" title="Editar">✏️</button>
+                <button onclick="movePartOutOfGroup('${part.id}', '${id}')" class="btn-mini tooltip" title="Sacar del grupo">↗️</button>
+                <button onclick="deleteSinglePart('${part.id}')" class="btn-mini tooltip" title="Eliminar">🗑️</button>
+            </div>
         </div>
     `;
     }).join('');
 
+    // Follow EXACT same structure as individual parts and series
     groupCard.innerHTML = `
         <div class="checkbox-wrapper">
             <input type="checkbox" class="custom-checkbox" 
                    onchange="togglePartSelection('${id}')" 
                    ${selectedParts.has(id) ? 'checked' : ''}>
         </div>
-        <div class="group-card-header">
-            <span class="group-card-title">📁 ${name} <small style="opacity: 0.7; font-size: 0.8em;">(${parts.length} partes)</small></span>
+        <div class="part-card-header">
+            <span class="part-card-title" ondblclick="editGroup('${id}')" style="cursor: pointer;" title="Doble clic para editar nombre">📦 ${name} <small style="opacity: 0.7; font-size: 0.8em;">(${parts.length} parte${parts.length !== 1 ? 's' : ''})</small></span>
+            <span class="order-badge">#${displayOrder.replace('G', '')}</span>
         </div>
-        <div class="group-card-body">
-            <div class="part-card-stat order-display">
-                <span>Orden:</span>
-                <span>${displayOrder}</span>
+        <div class="part-card-body">
+            <div class="part-card-stat approximate">
+                <span>Total Duración:</span>
+                <span>${formatDuration(totalDuration)} min</span>
             </div>
-            <div class="group-totals">
-                <div class="part-card-stat">
-                    <span>Total Duración:</span>
-                    <span>${formatDuration(totalDuration)} min</span>
-                </div>
-                <div class="part-card-stat">
-                    <span>Total Distancia:</span>
-                    <span>~${totalKms.toFixed(2)} km</span>
-                </div>
+            <div class="part-card-stat approximate">
+                <span>Total Distancia:</span>
+                <span>~${totalKms.toFixed(2)} km</span>
             </div>
-            <div class="group-parts-list">
+            <div class="part-card-stat">
+                <span>Número de partes:</span>
+                <span>${parts.length}</span>
+            </div>
+            <div class="group-parts-breakdown">
                 <h6>Partes del grupo:</h6>
                 ${partsListHTML}
             </div>
         </div>
-        <div class="group-actions">
-            <button onclick="editGroup('${id}')" class="tooltip">✏️ <span class="tooltiptext">Editar grupo</span></button>
+        <div class="part-card-actions">
+            
             <button onclick="duplicateGroup('${id}')" class="tooltip">📋 <span class="tooltiptext">Duplicar grupo</span></button>
             <button onclick="deleteGroup('${id}')" class="tooltip">🗑️ <span class="tooltiptext">Eliminar grupo</span></button>
         </div>
@@ -2443,25 +2402,38 @@ function getCurrentDuration() {
  * Placeholder functions for edit operations that would be implemented based on needs.
  */
 function editParte(partId) {
+    console.log('editParte called with partId:', partId);
+    
     const part = findPartByIdGlobal(partId, partesEntreno, groups);
     if (!part) {
+        console.error('Part not found for ID:', partId);
         showNotification('No se pudo encontrar la parte seleccionada', 'error');
         return;
     }
     
     // Store the part being edited
     editingPartId = partId;
+    console.log('editingPartId set to:', editingPartId);
     
     // Populate the form with existing values
     populateFormForEdit(part);
     
     // Change modal title and button text
     const modal = document.getElementById('addTrainingModal');
-    const modalTitle = modal.querySelector('.modal-title');
-    const submitBtn = modal.querySelector('.submit-btn');
+    const modalTitle = modal.querySelector('h3');
+    const submitBtn = modal.querySelector('button[type="submit"]') || modal.querySelector('.submit-btn');
     
-    modalTitle.textContent = 'Editar Parte de Entrenamiento';
-    submitBtn.textContent = 'Actualizar Parte';
+    if (modalTitle) {
+        modalTitle.textContent = 'Editar Parte de Entrenamiento';
+    }
+    if (submitBtn) {
+        const btnText = submitBtn.querySelector('.btn-text');
+        if (btnText) {
+            btnText.textContent = 'Actualizar Parte';
+        } else {
+            submitBtn.textContent = 'Actualizar Parte';
+        }
+    }
     
     // Add editing flag to the modal
     modal.setAttribute('data-editing', 'true');
@@ -2642,7 +2614,77 @@ function populatePhaseForm(config, phaseType) {
 }
 
 function editGroup(groupId) {
-    alert(`Edit function for group ${groupId} - To be implemented`);
+    // Groups are no longer editable via modal, only name can be edited inline
+    const group = findGroupByIdGlobal(groupId, groups);
+    if (!group) {
+        showNotification('Grupo no encontrado', 'error');
+        return;
+    }
+    
+    // Find the group title element
+    const groupCard = document.querySelector(`[data-id="${groupId}"]`);
+    if (groupCard) {
+        const titleElement = groupCard.querySelector('.group-card-title') || groupCard.querySelector('.part-card-title');
+        if (titleElement) {
+            editGroupNameInline(titleElement, group);
+        }
+    }
+}
+
+/**
+ * Enables inline editing of group name
+ */
+function editGroupNameInline(titleElement, group) {
+    const originalName = group.name;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = originalName;
+    input.style.cssText = `
+        background: transparent;
+        border: 1px solid #ccc;
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        padding: 2px 4px;
+        margin: -2px -4px;
+        border-radius: 4px;
+        width: 100%;
+    `;
+    
+    // Replace title with input
+    titleElement.innerHTML = '';
+    titleElement.appendChild(input);
+    input.focus();
+    input.select();
+    
+    const saveChanges = () => {
+        const newName = input.value.trim();
+        if (newName && newName !== originalName) {
+            group.name = newName;
+            showNotification(`Grupo renombrado a "${newName}"`, 'success');
+            render(); // Re-render to show the change
+        } else {
+            titleElement.textContent = originalName; // Restore original name
+        }
+    };
+    
+    const cancelEdit = () => {
+        titleElement.textContent = originalName; // Restore original name
+    };
+    
+    // Save on Enter
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveChanges();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelEdit();
+        }
+    });
+    
+    // Save on blur
+    input.addEventListener('blur', saveChanges);
 }
 
 /**
@@ -2848,9 +2890,19 @@ function initializeModalEventListeners() {
         });
     }
 
-    if (loadDefaultTrainingButton) {
-        loadDefaultTrainingButton.addEventListener('click', () => {
+    // Training Control Buttons (in header)
+    const loadExampleTrainingButton = document.getElementById('loadExampleTrainingButton');
+    const clearAllTrainingButton = document.getElementById('clearAllTrainingButton');
+
+    if (loadExampleTrainingButton) {
+        loadExampleTrainingButton.addEventListener('click', () => {
             loadDefaultTraining();
+        });
+    }
+
+    if (clearAllTrainingButton) {
+        clearAllTrainingButton.addEventListener('click', () => {
+            clearAllTraining();
         });
     }
 
@@ -3078,15 +3130,27 @@ function hideJsonModal() {
  * Shows the add training modal.
  */
 function showAddTrainingModal() {
+    console.log('showAddTrainingModal called, current editingPartId:', editingPartId);
+    
     const addTrainingModal = document.getElementById('addTrainingModal');
     if (addTrainingModal) {
-        // Reset editing state if opening for new part creation
-        if (!addTrainingModal.getAttribute('data-editing')) {
-            editingPartId = null;
-            const modalTitle = addTrainingModal.querySelector('.modal-title');
-            const submitBtn = addTrainingModal.querySelector('.submit-btn');
-            if (modalTitle) modalTitle.textContent = 'Añadir Parte de Entrenamiento';
-            if (submitBtn) submitBtn.textContent = 'Añadir Parte';
+        const isEditing = addTrainingModal.getAttribute('data-editing') === 'true';
+        console.log('Modal isEditing:', isEditing);
+        
+        // Only reset editing state if we're NOT editing and we're opening for new part creation
+        if (!isEditing && !editingPartId) {
+            console.log('Resetting for new part creation');
+            const modalTitle = addTrainingModal.querySelector('h3');
+            const submitBtn = addTrainingModal.querySelector('button[type="submit"]') || addTrainingModal.querySelector('.submit-btn');
+            if (modalTitle) modalTitle.textContent = 'Añadir Nueva Parte de Entrenamiento';
+            if (submitBtn) {
+                const btnText = submitBtn.querySelector('.btn-text');
+                if (btnText) {
+                    btnText.textContent = 'Añadir Parte';
+                } else {
+                    submitBtn.textContent = 'Añadir Parte';
+                }
+            }
         }
         
         addTrainingModal.classList.remove('hidden');
@@ -3352,6 +3416,9 @@ function updatePartTypeVisibility() {
  * Handles form submission for adding new training parts or editing existing ones.
  */
 function handleFormSubmission() {
+    console.log('handleFormSubmission called');
+    console.log('Current editingPartId:', editingPartId);
+    
     const form = document.getElementById('form');
     const nombreInput = form.querySelector('[name="nombre"]');
     const modal = document.getElementById('addTrainingModal');
@@ -3365,10 +3432,14 @@ function handleFormSubmission() {
     const partTypeToggle = document.getElementById('partType');
     const isEditing = modal.getAttribute('data-editing') === 'true';
     
+    console.log('Form submission data:', { nombre, isEditing, editingPartId });
+    
     if (isEditing) {
+        console.log('Processing edit mode');
         // Update existing part
         updateExistingPart(nombre, partTypeToggle && partTypeToggle.checked);
     } else {
+        console.log('Processing create mode');
         // Create new part
         if (partTypeToggle && partTypeToggle.checked) {
             // Create series
@@ -3384,7 +3455,10 @@ function handleFormSubmission() {
  * Updates an existing training part with new values from the form
  */
 function updateExistingPart(nombre, isSeries) {
+    console.log('updateExistingPart called with:', { nombre, isSeries, editingPartId });
+    
     if (!editingPartId) {
+        console.error('editingPartId is null! Cannot proceed with update');
         showNotification('Error: No se encontró la parte a editar', 'error');
         return;
     }
@@ -3428,10 +3502,19 @@ function updateExistingPart(nombre, isSeries) {
     modal.removeAttribute('data-editing');
     
     // Reset modal title and button
-    const modalTitle = modal.querySelector('.modal-title');
-    const submitBtn = modal.querySelector('.submit-btn');
-    modalTitle.textContent = 'Añadir Parte de Entrenamiento';
-    submitBtn.textContent = 'Añadir Parte';
+    const modalTitle = modal.querySelector('h3');
+    const submitBtn = modal.querySelector('button[type="submit"]') || modal.querySelector('.submit-btn');
+    if (modalTitle) {
+        modalTitle.textContent = 'Añadir Nueva Parte de Entrenamiento';
+    }
+    if (submitBtn) {
+        const btnText = submitBtn.querySelector('.btn-text');
+        if (btnText) {
+            btnText.textContent = 'Añadir Parte';
+        } else {
+            submitBtn.textContent = 'Añadir Parte';
+        }
+    }
     
     // Update UI
     render();
@@ -3460,12 +3543,22 @@ function updateSeriesFromForm(partToUpdate, nombre) {
     const repetitionsInput = document.getElementById('repetitionsInput');
     const repetitions = repetitionsInput ? parseInt(repetitionsInput.value) || 1 : 1;
     
+    // Preserve original order values
+    const originalOrder = partToUpdate.order;
+    const originalGeneralOrder = partToUpdate.generalOrder;
+    const originalInnerOrder = partToUpdate.innerOrder;
+    
     // Update the part
     partToUpdate.nombre = nombre;
     partToUpdate.workConfig = workConfig;
     partToUpdate.restConfig = restConfig;
     partToUpdate.repetitions = repetitions;
     partToUpdate.type = 'series';
+    
+    // Restore order values to maintain position
+    partToUpdate.order = originalOrder;
+    partToUpdate.generalOrder = originalGeneralOrder;
+    partToUpdate.innerOrder = originalInnerOrder;
     
     // Recalculate derived properties
     partToUpdate.approxKms = calculateApproxKms(partToUpdate);
@@ -3476,30 +3569,46 @@ function updateSeriesFromForm(partToUpdate, nombre) {
  * Updates a normal part with form data
  */
 function updateNormalPartFromForm(partToUpdate, nombre) {
-    // Get form values
-    const thresholdSelect = document.getElementById('threshold');
-    const valueInput = document.getElementById('value');
-    const duracionInput = document.getElementById('duracion');
-    const designedInSelect = document.getElementById('designedIn');
+    // Get intensity values
+    const intensityTypeToggle = document.getElementById('intensityType');
+    const isRPE = intensityTypeToggle ? intensityTypeToggle.checked : false;
     
-    if (!thresholdSelect || !valueInput || !duracionInput || !designedInSelect) {
-        showNotification('Error: Campos del formulario no encontrados', 'error');
-        return;
+    let indice;
+    let originalValue;
+    
+    if (isRPE) {
+        const rpeSlider = document.getElementById('indiceSliderRPE');
+        indice = rpeSlider ? parseFloat(rpeSlider.value) : 5;
+        originalValue = indice;
+    } else {
+        // Get zone value from slider
+        if (zoneSliderInstance) {
+            const values = zoneSliderInstance.get();
+            indice = Array.isArray(values) ? parseFloat(values[0]) : parseFloat(values);
+        } else {
+            indice = 100; // Default fallback
+        }
+        originalValue = indice;
     }
     
-    const isRPE = thresholdSelect.value === 'rpe';
-    const indice = parseFloat(valueInput.value) || 0;
-    const originalValue = isRPE ? indice : parseFloat(valueInput.value);
-    const designedIn = designedInSelect.value;
+    // Get duration values
+    const durationTypeToggle = document.getElementById('durationType');
+    const designedIn = durationTypeToggle && durationTypeToggle.checked ? 'distance' : 'time';
     
     let duracion;
     if (designedIn === 'distance') {
+        const kmInput = document.getElementById('kilometrosInput');
+        const km = kmInput ? parseFloat(kmInput.value) : 1;
+        originalValue = km;
+        
         // Calculate duration from distance
-        const km = parseFloat(duracionInput.value) || 0;
-        const umbralPaceSeconds = paceToSeconds(ritmoUmbralInput.value || "5:00");
+        const ritmoUmbralInput = document.getElementById('ritmoUmbral');
+        const umbralPaceSeconds = paceToSeconds(ritmoUmbralInput ? ritmoUmbralInput.value : "5:00");
         let paceSeconds;
         
         if (isRPE) {
+            const RPE_ZONE_MIN = 50;
+            const RPE_ZONE_MAX = 150;
             const zoneValue = RPE_ZONE_MAX - (indice / 10) * (RPE_ZONE_MAX - RPE_ZONE_MIN);
             paceSeconds = umbralPaceSeconds * (zoneValue / 100);
         } else {
@@ -3508,8 +3617,16 @@ function updateNormalPartFromForm(partToUpdate, nombre) {
         
         duracion = Math.round(km * paceSeconds);
     } else {
-        duracion = parseDuration(duracionInput.value);
+        const duracionInput = document.querySelector('input[name="duracion"]');
+        const durationStr = duracionInput ? duracionInput.value : '5:00';
+        duracion = parseDuration(durationStr);
+        originalValue = designedIn === 'time' ? duracion : originalValue;
     }
+    
+    // Preserve original order values
+    const originalOrder = partToUpdate.order;
+    const originalGeneralOrder = partToUpdate.generalOrder;
+    const originalInnerOrder = partToUpdate.innerOrder;
     
     // Update the part
     partToUpdate.nombre = nombre;
@@ -3518,7 +3635,11 @@ function updateNormalPartFromForm(partToUpdate, nombre) {
     partToUpdate.isRPE = isRPE;
     partToUpdate.originalValue = originalValue;
     partToUpdate.designedIn = designedIn;
-    partToUpdate.type = 'single';
+    
+    // Restore order values to maintain position
+    partToUpdate.order = originalOrder;
+    partToUpdate.generalOrder = originalGeneralOrder;
+    partToUpdate.innerOrder = originalInnerOrder;
     
     // Recalculate derived properties
     partToUpdate.approxKms = calculateApproxKms(partToUpdate);
@@ -3824,15 +3945,26 @@ function resetForm() {
         if (durationTypeToggle) durationTypeToggle.checked = false;
         if (partTypeToggle) partTypeToggle.checked = false;
         
-        // Reset editing state
-        editingPartId = null;
+        // Only reset editing state if we're not in editing mode
         const modal = document.getElementById('addTrainingModal');
-        if (modal) {
-            modal.removeAttribute('data-editing');
-            const modalTitle = modal.querySelector('.modal-title');
-            const submitBtn = modal.querySelector('.submit-btn');
-            if (modalTitle) modalTitle.textContent = 'Añadir Parte de Entrenamiento';
-            if (submitBtn) submitBtn.textContent = 'Añadir Parte';
+        const isEditing = modal && modal.getAttribute('data-editing') === 'true';
+        
+        if (!isEditing) {
+            editingPartId = null;
+            if (modal) {
+                modal.removeAttribute('data-editing');
+                const modalTitle = modal.querySelector('h3');
+                const submitBtn = modal.querySelector('button[type="submit"]') || modal.querySelector('.submit-btn');
+                if (modalTitle) modalTitle.textContent = 'Añadir Nueva Parte de Entrenamiento';
+                if (submitBtn) {
+                    const btnText = submitBtn.querySelector('.btn-text');
+                    if (btnText) {
+                        btnText.textContent = 'Añadir Parte';
+                    } else {
+                        submitBtn.textContent = 'Añadir Parte';
+                    }
+                }
+            }
         }
         
         // Update visibility
@@ -4196,6 +4328,30 @@ function loadDefaultTraining() {
         showNotification('Error al cargar el entrenamiento por defecto', 'error');
     }
 }
+
+/**
+ * Clear all training data (parts and groups)
+ */
+function clearAllTraining() {
+    if (partesEntreno.length === 0 && groups.length === 0) {
+        showNotification('⚠️ El entrenamiento ya está vacío', 'info');
+        return;
+    }
+    
+    const confirmClear = confirm('¿Estás seguro de que quieres borrar todo el entrenamiento? Esta acción no se puede deshacer.');
+    if (!confirmClear) {
+        return;
+    }
+    
+    // Clear all data
+    partesEntreno.length = 0;
+    groups.length = 0;
+    
+    // Re-render
+    render();
+    
+    showNotification('🧹 Entrenamiento borrado completamente', 'success');
+}
 /* ===============================================
    🎯 COMPACT CARDS FUNCTIONALITY
    =============================================== */
@@ -4382,7 +4538,7 @@ function createCompactLayout(card) {
     
     // Create compact layout
     const compactInfo = document.createElement('div');
-    compactInfo.className = isGroup ? 'compact-main-info group-compact' : 'compact-main-info';
+    compactInfo.className = 'compact-main-info';
     
     // Title
     const title = document.createElement('h3');
@@ -4396,11 +4552,11 @@ function createCompactLayout(card) {
     
     if (isGroup) {
         const partsCount = part.parts ? part.parts.length : 0;
-        subtitle.textContent = `📦 ${partsCount} parte${partsCount !== 1 ? 's' : ''}`;
+        subtitle.textContent = `Grupo • ${partsCount} parte${partsCount !== 1 ? 's' : ''}`;
     } else if (part.type === 'series') {
-        subtitle.textContent = `🔄 ${part.repetitions || 1} repeticiones`;
+        subtitle.textContent = `Serie • ${part.repetitions || 1} repeticiones`;
     } else {
-        subtitle.textContent = part.designedIn === 'distance' ? '📏 Por distancia' : '⏱️ Por tiempo';
+        subtitle.textContent = part.designedIn === 'distance' ? 'Diseñado por distancia' : 'Diseñado por tiempo';
     }
     compactInfo.appendChild(subtitle);
     
@@ -4413,16 +4569,27 @@ function createCompactLayout(card) {
     let totalKms = 0;
     
     if (isGroup) {
-        // Calculate totals for group
+        // Calculate totals for group using the same logic as createGroupCard
         if (part.parts && part.parts.length > 0) {
             part.parts.forEach(groupPart => {
-                totalDuration += groupPart.totalDuration || groupPart.duracion || 0;
-                totalKms += groupPart.approxKms || calculateApproxKms(groupPart);
+                if (groupPart.type === 'series') {
+                    totalDuration += getSeriesTotalDuration(groupPart);
+                } else {
+                    totalDuration += groupPart.duracion || 0;
+                }
+                totalKms += calculateApproxKms(groupPart);
             });
         }
     } else {
-        totalDuration = part.totalDuration || part.duracion || 0;
-        totalKms = part.approxKms || calculateApproxKms(part);
+        if (part.type === 'series') {
+            totalDuration = getSeriesTotalDuration(part);
+            totalKms = calculateApproxKms(part);
+            console.log('Series compact stats:', { partId: cardId, partName: part.nombre, totalDuration, totalKms });
+        } else {
+            totalDuration = part.duracion || 0;
+            totalKms = calculateApproxKms(part);
+            console.log('Normal part compact stats:', { partId: cardId, partName: part.nombre, totalDuration, totalKms });
+        }
     }
     
     // Duration stat
@@ -4433,11 +4600,34 @@ function createCompactLayout(card) {
     const kmsStat = createCompactStat('📏', `~${totalKms.toFixed(2)} km`);
     statsContainer.appendChild(kmsStat);
     
-    // Order stat
-    const orderElement = card.querySelector('.part-card-stat.order-display span:last-child, .group-order span');
-    const orderValue = orderElement ? orderElement.textContent.trim() : '-';
+    // Order stat - now get from order badge or calculate from displayOrder
+    let orderValue = '-';
+    const orderBadge = card.querySelector('.order-badge');
+    if (orderBadge) {
+        orderValue = orderBadge.textContent.trim();
+    } else {
+        // Fallback: calculate from data
+        if (isGroup) {
+            orderValue = part.generalOrder !== undefined ? `#${part.generalOrder}` : '-';
+        } else {
+            if (part.generalOrder !== undefined) {
+                orderValue = `#${part.generalOrder}`;
+            } else if (part.innerOrder !== undefined) {
+                orderValue = `#${part.innerOrder}`;
+            } else {
+                orderValue = '-';
+            }
+        }
+    }
     const orderStat = createCompactStat('#', orderValue);
     statsContainer.appendChild(orderStat);
+    
+    // For groups, add parts count stat
+    if (isGroup) {
+        const partsCount = part.parts ? part.parts.length : 0;
+        const partsStat = createCompactStat('📦', `${partsCount} parte${partsCount !== 1 ? 's' : ''}`);
+        statsContainer.appendChild(partsStat);
+    }
     
     compactInfo.appendChild(statsContainer);
     

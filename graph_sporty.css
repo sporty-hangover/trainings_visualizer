@@ -1012,6 +1012,17 @@ input:checked + .toggle-slider:hover:after {
   letter-spacing: -0.02em;
 }
 
+.order-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 /* Enhanced card body */
 .part-card-body {
   display: grid;
@@ -2265,6 +2276,41 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     font-weight: 500;
 }
 
+.training-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.example-btn, .clear-btn {
+    background: linear-gradient(135deg, #00b4d8, #0077b6);
+    border: 1px solid #005577;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.example-btn:hover, .clear-btn:hover {
+    background: linear-gradient(135deg, #0096c7, #005577);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 180, 216, 0.3);
+}
+
+.clear-btn {
+    background: linear-gradient(135deg, #e85d75, #d62839);
+    border-color: #a61e24;
+}
+
+.clear-btn:hover {
+    background: linear-gradient(135deg, #d62839, #a61e24);
+    box-shadow: 0 4px 12px rgba(214, 40, 57, 0.3);
+}
+
 #umbralInput {
     background: white;
     border: 1px solid #ddd;
@@ -2719,6 +2765,16 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   align-items: center;
 }
 
+/* Group cards may have 4 stats instead of 3 */
+.group-card.compact .compact-stats {
+  gap: 0.5rem; /* Slightly smaller gap for more stats */
+  justify-content: center;
+}
+
+.group-card.compact .compact-stat {
+  min-width: 45px; /* Slightly smaller for 4 stats */
+}
+
 .part-card.compact .compact-stat {
   display: flex;
   flex-direction: column;
@@ -2754,38 +2810,10 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   gap: 0.3rem;
 }
 
-/* Group-specific compact styling */
+/* Groups now inherit from part-card base styles */
 .group-card.compact {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-left: 4px solid var(--primary);
-}
-
-.group-card.compact .compact-main-info.group-compact {
-  width: 100%;
-}
-
-.group-card.compact .compact-title {
-  color: var(--primary);
-  font-size: 1.1rem;
-}
-
-.group-card.compact .compact-subtitle {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.group-card.compact .compact-stat {
-  background: rgba(231, 25, 37, 0.15);
-  border: 1px solid rgba(231, 25, 37, 0.2);
-}
-
-.group-card.compact .compact-stat-label {
-  font-size: 0.7rem;
-}
-
-.group-card.compact .compact-stat-value {
-  font-size: 0.8rem;
-  font-weight: 800;
+  /* Add subtle group indicator */
+  border-left: 3px solid var(--primary);
 }
 
 /* Expanded State */
@@ -2825,54 +2853,97 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   display: none !important;
 }
 
-/* Group expanded state improvements */
-.group-card.expanded {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-left: 4px solid var(--primary);
-}
-
-.group-card.expanded .group-card-header {
-  background: rgba(231, 25, 37, 0.1);
-  padding: 1rem;
-  margin: -1rem -1rem 1rem -1rem;
-  border-radius: 8px 8px 0 0;
-}
-
-.group-card.expanded .group-card-title {
-  color: var(--primary);
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.group-card.expanded .group-totals {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.group-card.expanded .group-totals > div {
-  background: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid rgba(231, 25, 37, 0.2);
-  font-weight: 600;
-}
-
-.group-card.expanded .group-parts-list {
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 8px;
-  padding: 1rem;
+/* Group parts breakdown styling (for expanded view) */
+.group-parts-breakdown {
   margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.group-card.expanded .group-parts-list h6 {
-  color: var(--primary);
-  font-size: 1rem;
-  font-weight: 700;
+.group-parts-breakdown h6 {
+  color: var(--text-on-light);
+  font-size: 0.9rem;
+  font-weight: 600;
   margin-bottom: 1rem;
-  border-bottom: 2px solid var(--primary);
   padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.group-part-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.group-part-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.group-part-item:last-child {
+  margin-bottom: 0;
+}
+
+.group-part-number {
+  background: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  min-width: 28px;
+  text-align: center;
+}
+
+.group-part-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-on-light);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.group-part-details {
+  font-size: 0.85rem;
+  color: var(--text-muted-light);
+  margin-right: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.group-part-actions {
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.group-part-item:hover .group-part-actions {
+  opacity: 1;
+}
+
+.btn-mini {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-mini:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Group Card Compact Styles */

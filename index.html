@@ -41,12 +41,6 @@
                     <button type="button" id="loadJsonButton" class="load-json-btn">🔄 Cargar Entreno</button>
                     <button type="button" id="clearImportButton" class="clear-import-btn">🗑️ Limpiar</button>
                 </div>
-                
-                <div class="default-training-section">
-                    <h5>🎯 Entrenamiento de Ejemplo</h5>
-                    <p class="default-help">Carga un entrenamiento completo con ejemplos mixtos:</p>
-                    <button type="button" id="loadDefaultTrainingButton" class="load-default-btn">⚡ Cargar Entrenamiento por Defecto</button>
-                </div>
             </div>
 
             <button type="button" class="close-json-modal" aria-label="Cerrar modal de JSON">Cerrar</button>
@@ -63,6 +57,10 @@
         <label for="ritmoUmbral">Ritmo Umbral (min/km):</label>
             <input type="text" id="ritmoUmbral" value="5:00" pattern="^\d+:\d{2}$" title="Formato: mm:ss (ej: 5:00)">
             <button id="applyUmbral" class="secondary-btn">Aplicar</button>
+        </div>
+        <div class="training-controls">
+            <button id="loadExampleTrainingButton" class="example-btn">⚡ generar un entreno de ejemplo</button>
+            <button id="clearAllTrainingButton" class="clear-btn">🗑️ borrar entreno</button>
         </div>
     </div>
     
