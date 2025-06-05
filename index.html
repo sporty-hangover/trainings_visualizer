@@ -322,24 +322,26 @@
                 <div id="grafico" role="img" aria-label="Gráfico visual del entrenamiento"></div>
             </div>
         </div>
-    </div>
-    
-    <!-- Summary Section Below Graph -->
-    <div class="summary-section">
-        <div id="summaryBar" role="status" aria-live="polite">
-            <div class="summary-stats">
-                <!-- Los totales se insertarán aquí mediante JavaScript -->
+        
+        <div class="summary-section">
+            <div id="summaryBar" role="status" aria-live="polite">
+                <div class="summary-stats">
+                    <!-- Los totales se insertarán aquí mediante JavaScript -->
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="selection-toolbar" id="selectionToolbar" role="toolbar" aria-label="Acciones para elementos seleccionados">
-        <span class="selection-count">0 elementos seleccionados</span>
-        <button onclick="createGroupFromSelection()" aria-describedby="createGroupHelp">📦 Crear Grupo</button>
-        <small id="createGroupHelp" class="help-text">Ctrl+G</small>
-        <button onclick="duplicateSelected()">📋 Duplicar</button>
-        <button onclick="deleteSelected()" aria-describedby="deleteHelp">🗑️ Eliminar</button>
-        <small id="deleteHelp" class="help-text">Delete</small>
+    <div class="toolbars-row">
+        <div class="selection-toolbar" id="selectionToolbar" role="toolbar" aria-label="Acciones para elementos seleccionados">
+            <span class="selection-count">0 elementos seleccionados</span>
+            <button onclick="createGroupFromSelection()" aria-describedby="createGroupHelp">📦 Crear Grupo</button>
+            <small id="createGroupHelp" class="help-text">Ctrl+G</small>
+            <button onclick="duplicateSelected()">📋 Duplicar</button>
+            <button onclick="deleteSelected()" aria-describedby="deleteHelp">🗑️ Eliminar</button>
+            <small id="deleteHelp" class="help-text">Delete</small>
+        </div>
+        <div class="compact-mode-placeholder"></div>
     </div>
 
     <div id="partsContainer" class="parts-table" role="main" aria-label="Contenedor principal de entrenamientos"></div>

@@ -3844,12 +3844,10 @@ function initializeCompactMode() {
 }
 
 function addCompactModeControls() {
-    // Find the cards container directly
-    const cardsContainer = document.querySelector('.parts-table') || 
-                          document.querySelector('.main-order-container') ||
-                          document.querySelector('.entrenos-container');
+    // Find the compact mode placeholder in the toolbars row
+    const placeholder = document.querySelector('.compact-mode-placeholder');
     
-    if (!cardsContainer) return;
+    if (!placeholder) return;
     
     // Check if controls already exist
     if (document.querySelector('.compact-mode-controls')) return;
@@ -3867,8 +3865,8 @@ function addCompactModeControls() {
         </div>
     `;
     
-    // Insert the controls directly before the cards container
-    cardsContainer.insertAdjacentHTML('beforebegin', controlsHTML);
+    // Insert the controls into the placeholder
+    placeholder.innerHTML = controlsHTML;
     
     // Add event listener for the toggle
     const toggleCheckbox = document.getElementById('compactModeToggle');

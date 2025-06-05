@@ -2194,6 +2194,30 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     margin: 1rem 0;
 }
 
+/* === TOOLBARS ROW === */
+.toolbars-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.selection-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.compact-mode-placeholder {
+    flex-shrink: 0;
+}
+
 /* === MISSING THRESHOLD CONTROLS === */
 .threshold-controls {
     display: flex;
@@ -2234,19 +2258,22 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 /* Main Layout - 2 Column Responsive Design */
 .main-layout {
-  display: block;
+  display: flex;
+  gap: 1.5rem;
   margin: 2rem 0;
   min-height: 500px;
+  align-items: stretch;
 }
 
 .graph-section {
-  width: 100%;
-  margin-bottom: 1.5rem;
+  flex: 2;
+  min-width: 0; /* Allows flex item to shrink below its content size */
 }
 
 .summary-section {
-  width: 100%;
-  margin: 1.5rem 0;
+  flex: 1;
+  min-width: 280px;
+  max-width: 400px;
 }
 
 .grafico-wrapper {
@@ -2266,7 +2293,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.5rem;
-  height: auto;
+  height: 100%;
   display: flex;
   flex-direction: column;
   box-shadow: var(--box-shadow);
@@ -2274,9 +2301,9 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 #summaryBar .summary-stats {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 1.5rem;
-  height: auto;
+  height: 100%;
   justify-content: space-around;
 }
 
@@ -2332,19 +2359,21 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 /* Responsive Design */
 @media (max-width: 1024px) {
   .main-layout {
-    margin: 1rem 0;
+    flex-direction: column;
+    gap: 1rem;
   }
   
-  .graph-section {
-    margin-bottom: 1rem;
-  }
-  
+  .graph-section,
   .summary-section {
-    margin: 1rem 0;
+    flex: none;
+    min-width: auto;
+    max-width: none;
   }
   
   #summaryBar .summary-stats {
+    flex-direction: row;
     gap: 1rem;
+    height: auto;
     justify-content: space-between;
   }
   
@@ -2361,14 +2390,6 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 @media (max-width: 768px) {
   .main-layout {
     margin: 1rem 0;
-  }
-  
-  .graph-section {
-    margin-bottom: 0.75rem;
-  }
-  
-  .summary-section {
-    margin: 0.75rem 0;
   }
   
   #summaryBar .summary-stats {
@@ -2413,6 +2434,50 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 /* ===============================================
    🎯 COMPACT CARD SYSTEM WITH TOGGLE
    =============================================== */
+
+/* Compact Mode Controls in Toolbar Row */
+.compact-mode-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+}
+
+.compact-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.compact-mode-toggle input[type="checkbox"] {
+    margin: 0;
+}
+
+.compact-mode-toggle label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.controls-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.controls-actions button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.controls-actions button:hover {
+    background: var(--primary-hover);
+}
 
 /* Compact Card Styles - Default State */
 .part-card.compact,
@@ -2615,18 +2680,28 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     max-height: 60px;
   }
   
-  /* Adjust spacing for mobile */
+  /* Responsive toolbars row */
+  .toolbars-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .selection-toolbar {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
   .compact-mode-controls {
-    margin: 1rem 0 0.75rem 0;
-    padding: 0.5rem;
     flex-direction: column;
     gap: 0.75rem;
     text-align: center;
   }
   
+  .compact-mode-toggle {
+    justify-content: center;
+  }
+  
   .controls-actions {
-    display: flex;
-    gap: 0.5rem;
     justify-content: center;
   }
   
