@@ -2754,6 +2754,40 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   gap: 0.3rem;
 }
 
+/* Group-specific compact styling */
+.group-card.compact {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid var(--primary);
+}
+
+.group-card.compact .compact-main-info.group-compact {
+  width: 100%;
+}
+
+.group-card.compact .compact-title {
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.group-card.compact .compact-subtitle {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.group-card.compact .compact-stat {
+  background: rgba(231, 25, 37, 0.15);
+  border: 1px solid rgba(231, 25, 37, 0.2);
+}
+
+.group-card.compact .compact-stat-label {
+  font-size: 0.7rem;
+}
+
+.group-card.compact .compact-stat-value {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
 /* Expanded State */
 .part-card.expanded,
 .group-card.expanded {
@@ -2789,6 +2823,56 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 .part-card.expanded .compact-main-info {
   display: none !important;
+}
+
+/* Group expanded state improvements */
+.group-card.expanded {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-left: 4px solid var(--primary);
+}
+
+.group-card.expanded .group-card-header {
+  background: rgba(231, 25, 37, 0.1);
+  padding: 1rem;
+  margin: -1rem -1rem 1rem -1rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.group-card.expanded .group-card-title {
+  color: var(--primary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.group-card.expanded .group-totals {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.group-card.expanded .group-totals > div {
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(231, 25, 37, 0.2);
+  font-weight: 600;
+}
+
+.group-card.expanded .group-parts-list {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.group-card.expanded .group-parts-list h6 {
+  color: var(--primary);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 0.5rem;
 }
 
 /* Group Card Compact Styles */

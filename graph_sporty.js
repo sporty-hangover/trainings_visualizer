@@ -4382,12 +4382,12 @@ function createCompactLayout(card) {
     
     // Create compact layout
     const compactInfo = document.createElement('div');
-    compactInfo.className = 'compact-main-info';
+    compactInfo.className = isGroup ? 'compact-main-info group-compact' : 'compact-main-info';
     
     // Title
     const title = document.createElement('h3');
     title.className = 'compact-title';
-    title.textContent = part.nombre || 'Sin nombre';
+    title.textContent = part.nombre || (isGroup ? 'Grupo sin nombre' : 'Sin nombre');
     compactInfo.appendChild(title);
     
     // Subtitle
@@ -4395,11 +4395,12 @@ function createCompactLayout(card) {
     subtitle.className = 'compact-subtitle';
     
     if (isGroup) {
-        subtitle.textContent = `Grupo • ${part.parts ? part.parts.length : 0} partes`;
+        const partsCount = part.parts ? part.parts.length : 0;
+        subtitle.textContent = `📦 ${partsCount} parte${partsCount !== 1 ? 's' : ''}`;
     } else if (part.type === 'series') {
-        subtitle.textContent = `Serie • ${part.repetitions || 1} repeticiones`;
+        subtitle.textContent = `🔄 ${part.repetitions || 1} repeticiones`;
     } else {
-        subtitle.textContent = part.designedIn === 'distance' ? 'Diseñado por distancia' : 'Diseñado por tiempo';
+        subtitle.textContent = part.designedIn === 'distance' ? '📏 Por distancia' : '⏱️ Por tiempo';
     }
     compactInfo.appendChild(subtitle);
     
@@ -4425,17 +4426,17 @@ function createCompactLayout(card) {
     }
     
     // Duration stat
-    const durationStat = createCompactStat('Duración', formatDuration(totalDuration));
+    const durationStat = createCompactStat('⏱️', formatDuration(totalDuration));
     statsContainer.appendChild(durationStat);
     
-    // Distance stat
-    const kmsStat = createCompactStat('Kms', `~${totalKms.toFixed(2)}`);
+    // Distance stat  
+    const kmsStat = createCompactStat('📏', `~${totalKms.toFixed(2)} km`);
     statsContainer.appendChild(kmsStat);
     
     // Order stat
     const orderElement = card.querySelector('.part-card-stat.order-display span:last-child, .group-order span');
     const orderValue = orderElement ? orderElement.textContent.trim() : '-';
-    const orderStat = createCompactStat('Orden', orderValue);
+    const orderStat = createCompactStat('#', orderValue);
     statsContainer.appendChild(orderStat);
     
     compactInfo.appendChild(statsContainer);
