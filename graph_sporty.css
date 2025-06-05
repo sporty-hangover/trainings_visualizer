@@ -142,7 +142,7 @@ button {
 
 #grafico {
   width: 100%;
-  height: 450px;
+  height: 400px;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
@@ -151,6 +151,7 @@ button {
   border-radius: 4px;
   padding: 1rem;
   position: relative;
+  flex: 1;
 }
 
 .barra {
@@ -2264,10 +2265,10 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 /* Main Layout - 2 Column Responsive Design */
 .main-layout {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   margin: 1.5rem 0;
   margin-bottom: 2rem;
-  min-height: 500px;
+  height: 450px;
   align-items: stretch;
 }
 
@@ -2279,14 +2280,9 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 }
 
 .summary-section {
-  flex: 1;
-  min-width: 280px;
-  max-width: 400px;
-  background: var(--surface-light);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.5rem;
-  box-shadow: var(--box-shadow);
+  flex: 0 0 320px;
+  min-width: 320px;
+  max-width: 320px;
   display: flex;
   align-items: stretch;
 }
@@ -2296,10 +2292,10 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
-  min-height: 500px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 /* Enhanced Summary Bar Styling */
@@ -2312,6 +2308,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   display: flex;
   flex-direction: column;
   box-shadow: var(--box-shadow);
+  width: 100%;
 }
 
 #summaryBar .summary-stats {
