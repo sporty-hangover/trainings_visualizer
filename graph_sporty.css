@@ -55,7 +55,7 @@ body {
   display: grid;
   grid-template-rows: auto auto auto 1fr;
   gap: 1rem;
-  max-width: 1200px;
+  max-width: 95vw;
   margin: 0 auto;
   padding: 1rem;
 }
@@ -2281,6 +2281,9 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   align-items: stretch;
   background: green;
   border-radius: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .graph-section {
@@ -2288,14 +2291,16 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   min-width: 0; /* Allows flex item to shrink below its content size */
   display: flex;
   align-items: stretch;
+  overflow: hidden;
 }
 
 .summary-section {
-  flex: 0 0 320px;
-  min-width: 320px;
-  max-width: 320px;
+  flex: 0 0 300px;
+  min-width: 280px;
+  max-width: 300px;
   display: flex;
   align-items: stretch;
+  overflow: hidden;
 }
 
 .grafico-wrapper {
@@ -2307,6 +2312,8 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   display: flex;
   flex-direction: column;
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Enhanced Summary Bar Styling */
@@ -2314,12 +2321,14 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem;
   height: 100%;
   display: flex;
   flex-direction: column;
   box-shadow: var(--box-shadow);
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 #summaryBar .summary-stats {
