@@ -16,10 +16,10 @@
 <body>
     <div id="notification-container" class="notification-container"></div>
 
-    <button id="showJsonButton">📄 Ver JSON</button>
+    
 
     <button id="helpButton" type="button" aria-label="Mostrar ayuda" class="help-button">❓</button>
-
+    <button id="showJsonButton">📄 Ver JSON</button>
     <div id="jsonModal" class="modal hidden" role="dialog" aria-labelledby="jsonModalTitle" aria-modal="true">
         <div class="json-modal-content">
             <h3 id="jsonModalTitle">📋 Gestión de Entrenamientos (JSON)</h3>
@@ -307,7 +307,6 @@
             </div>
         </div>
     </div>
-
     <div id="clipboard-container" role="status" aria-live="polite">
         <p>🗒️ Elementos copiados: <span id="clipboard-count">0</span></p>
         <button onclick="pasteElements()" aria-describedby="pasteHelp">📋 Pegar</button>

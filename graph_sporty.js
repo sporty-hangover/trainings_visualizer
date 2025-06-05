@@ -3818,3 +3818,227 @@ function loadDefaultTraining() {
         showNotification('Error al cargar el entrenamiento por defecto', 'error');
     }
 }
+/* ===============================================
+   🎯 COMPACT CARDS FUNCTIONALITY
+   =============================================== */
+
+// Global compact mode state
+let isCompactMode = true;
+
+// Initialize compact mode when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initializeCompactMode, 500); // Small delay to ensure other scripts have loaded
+});
+
+function initializeCompactMode() {
+    // Add compact mode controls to the page
+    addCompactModeControls();
+    
+    // Apply compact mode to all existing cards
+    if (isCompactMode) {
+        applyCompactModeToAllCards();
+    }
+    
+    // Listen for new cards being added
+    observeForNewCards();
+}
+
+function addCompactModeControls() {
+    // Find the cards container directly
+    const cardsContainer = document.querySelector('.parts-table') || 
+                          document.querySelector('.main-order-container') ||
+                          document.querySelector('.entrenos-container');
+    
+    if (!cardsContainer) return;
+    
+    // Check if controls already exist
+    if (document.querySelector('.compact-mode-controls')) return;
+    
+    const controlsHTML = `
+        <div class="compact-mode-controls">
+            <div class="compact-mode-toggle">
+                <input type="checkbox" id="compactModeToggle" ${isCompactMode ? 'checked' : ''}>
+                <label for="compactModeToggle">🎯 Modo Compacto (facilita drag & drop)</label>
+            </div>
+            <div class="controls-actions">
+                <button type="button" onclick="expandAllCards()" class="btn btn-sm" style="margin-right: 0.5rem;">📖 Expandir Todas</button>
+                <button type="button" onclick="collapseAllCards()" class="btn btn-sm">📋 Contraer Todas</button>
+            </div>
+        </div>
+    `;
+    
+    // Insert the controls directly before the cards container
+    cardsContainer.insertAdjacentHTML('beforebegin', controlsHTML);
+    
+    // Add event listener for the toggle
+    const toggleCheckbox = document.getElementById('compactModeToggle');
+    if (toggleCheckbox) {
+        toggleCheckbox.addEventListener('change', function(e) {
+            isCompactMode = e.target.checked;
+            if (isCompactMode) {
+                applyCompactModeToAllCards();
+            } else {
+                removeCompactModeFromAllCards();
+            }
+        });
+    }
+}
+
+function applyCompactModeToAllCards() {
+    const cards = document.querySelectorAll('.part-card, .group-card');
+    cards.forEach(card => {
+        makeCardCompact(card);
+    });
+}
+
+function removeCompactModeFromAllCards() {
+    const cards = document.querySelectorAll('.part-card, .group-card');
+    cards.forEach(card => {
+        card.classList.remove('compact', 'expanded');
+        removeToggleButton(card);
+    });
+}
+
+function makeCardCompact(card) {
+    if (!card) return;
+    
+    card.classList.add('compact');
+    card.classList.remove('expanded');
+    
+    // Add toggle button if it doesn't exist
+    addToggleButton(card);
+    
+    // Mark essential stats
+    markEssentialStats(card);
+}
+
+function addToggleButton(card) {
+    if (card.querySelector('.card-toggle-btn')) return;
+    
+    const header = card.querySelector('.part-card-header, .group-card-header');
+    if (!header) return;
+    
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'card-toggle-btn';
+    toggleBtn.innerHTML = '<span class="toggle-icon">▼</span>';
+    toggleBtn.setAttribute('aria-label', 'Expandir/contraer información');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    toggleBtn.setAttribute('title', 'Click para expandir/contraer');
+    
+    toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleCardExpansion(card);
+    });
+    
+    header.appendChild(toggleBtn);
+}
+
+function removeToggleButton(card) {
+    const toggleBtn = card.querySelector('.card-toggle-btn');
+    if (toggleBtn) {
+        toggleBtn.remove();
+    }
+}
+
+function toggleCardExpansion(card) {
+    const isExpanded = card.classList.contains('expanded');
+    const toggleBtn = card.querySelector('.card-toggle-btn');
+    
+    if (isExpanded) {
+        card.classList.remove('expanded');
+        card.classList.add('compact');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.setAttribute('title', 'Click para expandir');
+        }
+    } else {
+        card.classList.remove('compact');
+        card.classList.add('expanded');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            toggleBtn.setAttribute('title', 'Click para contraer');
+        }
+    }
+}
+
+function markEssentialStats(card) {
+    const stats = card.querySelectorAll('.part-card-stat');
+    
+    // Mark the first 2 stats as essential (these will be visible in compact mode)
+    stats.forEach((stat, index) => {
+        if (index < 2) {
+            stat.classList.add('essential');
+        } else {
+            stat.classList.remove('essential');
+        }
+    });
+}
+
+function observeForNewCards() {
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                    if (node.classList && (node.classList.contains('part-card') || node.classList.contains('group-card'))) {
+                        if (isCompactMode) {
+                            setTimeout(() => makeCardCompact(node), 100);
+                        }
+                    }
+                    
+                    // Check for cards within added nodes
+                    const cards = node.querySelectorAll && node.querySelectorAll('.part-card, .group-card');
+                    if (cards && isCompactMode) {
+                        cards.forEach(card => {
+                            setTimeout(() => makeCardCompact(card), 100);
+                        });
+                    }
+                }
+            });
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+// Global functions for the control buttons
+window.expandAllCards = function() {
+    const cards = document.querySelectorAll('.part-card.compact, .group-card.compact');
+    cards.forEach(card => {
+        card.classList.remove('compact');
+        card.classList.add('expanded');
+        const toggleBtn = card.querySelector('.card-toggle-btn');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            toggleBtn.setAttribute('title', 'Click para contraer');
+        }
+    });
+};
+
+window.collapseAllCards = function() {
+    const cards = document.querySelectorAll('.part-card.expanded, .group-card.expanded');
+    cards.forEach(card => {
+        card.classList.remove('expanded');
+        card.classList.add('compact');
+        const toggleBtn = card.querySelector('.card-toggle-btn');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.setAttribute('title', 'Click para expandir');
+        }
+    });
+};
+
+// Hook into existing card creation functions
+const originalCreatePartCard = window.createPartCard;
+if (originalCreatePartCard) {
+    window.createPartCard = function(...args) {
+        const card = originalCreatePartCard.apply(this, args);
+        if (isCompactMode && card) {
+            setTimeout(() => makeCardCompact(card), 100);
+        }
+        return card;
+    };
+}
