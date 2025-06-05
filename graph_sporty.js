@@ -2478,16 +2478,25 @@ function populateFormForEdit(part) {
     resetForm();
     
     // Fill in basic info
-    document.getElementById('nombreParte').value = part.nombre || '';
+    const nombreField = document.getElementById('nombre');
+    if (nombreField) {
+        nombreField.value = part.nombre || '';
+    }
     
     // Check if it's a series or single part
     if (part.type === 'series') {
         // Set part type to series
-        document.getElementById('partType').value = 'series';
+        const partTypeField = document.getElementById('partType');
+        if (partTypeField) {
+            partTypeField.checked = true; // It's a checkbox/toggle
+        }
         updatePartTypeVisibility();
         
         // Fill series data
-        document.getElementById('repetitions').value = part.repetitions || 1;
+        const repetitionsField = document.getElementById('repetitionsInput');
+        if (repetitionsField) {
+            repetitionsField.value = part.repetitions || 1;
+        }
         
         // Populate work phase
         if (part.workConfig) {
@@ -2501,7 +2510,10 @@ function populateFormForEdit(part) {
         
     } else {
         // Single part
-        document.getElementById('partType').value = 'single';
+        const partTypeField = document.getElementById('partType');
+        if (partTypeField) {
+            partTypeField.checked = false; // It's a checkbox/toggle
+        }
         updatePartTypeVisibility();
         
         // Fill single part data
@@ -2517,46 +2529,115 @@ function populateFormForEdit(part) {
  * Populates form fields for a specific phase (work, rest, or single)
  */
 function populatePhaseForm(config, phaseType) {
-    const prefix = phaseType === 'single' ? '' : phaseType;
+    console.log('Populating phase form:', phaseType, config);
     
-    // Set duration
-    if (config.duracion) {
-        const durationField = document.getElementById(prefix + (prefix ? 'Duration' : 'duracion'));
-        if (durationField) {
-            durationField.value = config.duracion;
+    if (phaseType === 'single') {
+        // Handle single part
+        
+        // Set intensity type
+        const intensityToggle = document.getElementById('intensityType');
+        if (intensityToggle) {
+            intensityToggle.checked = config.isRPE || false;
         }
+        
+        // Set duration type
+        const durationToggle = document.getElementById('durationType');
+        if (durationToggle) {
+            durationToggle.checked = config.designedIn === 'distance';
+        }
+        
+        // Set duration value
+        if (config.designedIn === 'distance' && config.originalValue) {
+            const kmField = document.getElementById('kilometrosInput');
+            if (kmField) {
+                kmField.value = config.originalValue;
+            }
+        } else if (config.duracion) {
+            const durationField = document.querySelector('input[name="duracion"]');
+            if (durationField) {
+                durationField.value = formatDuration(config.duracion);
+            }
+        }
+        
+        // Set intensity value - handle via sliders after visibility update
+        setTimeout(() => {
+            if (config.isRPE) {
+                const rpeSlider = document.getElementById('indiceSliderRPE');
+                if (rpeSlider) {
+                    rpeSlider.value = config.indice || config.originalValue || 5;
+                    // Trigger change event to update display
+                    rpeSlider.dispatchEvent(new Event('input'));
+                }
+            } else {
+                // Set zone values if available
+                if (zoneSliderInstance && config.indice) {
+                    // Set both values to the same for simplicity
+                    zoneSliderInstance.set([config.indice, config.indice]);
+                }
+            }
+        }, 100);
+        
+    } else {
+        // Handle work/rest phase
+        const prefix = phaseType;
+        
+        // Set intensity type
+        const intensityToggle = document.getElementById(`${prefix}IntensityType`);
+        if (intensityToggle) {
+            intensityToggle.checked = config.isRPE || false;
+        }
+        
+        // Set duration type
+        const durationToggle = document.getElementById(`${prefix}DurationType`);
+        if (durationToggle) {
+            durationToggle.checked = config.designedIn === 'distance';
+        }
+        
+        // Set duration value
+        if (config.designedIn === 'distance' && config.originalValue) {
+            const kmField = document.getElementById(`${prefix}KilometersInput`);
+            if (kmField) {
+                kmField.value = config.originalValue;
+            }
+        } else if (config.duracion) {
+            const durationField = document.getElementById(`${prefix}DurationInput`);
+            if (durationField) {
+                durationField.value = formatDuration(config.duracion);
+            }
+        }
+        
+        // Set intensity value - handle via sliders after visibility update
+        setTimeout(() => {
+            if (config.isRPE) {
+                const rpeSlider = document.getElementById(`${prefix}RpeInput`);
+                if (rpeSlider) {
+                    rpeSlider.value = config.indice || config.originalValue || (prefix === 'work' ? 7 : 2);
+                    // Update display
+                    const valueDisplay = document.getElementById(`${prefix}RpeValue`);
+                    if (valueDisplay) {
+                        valueDisplay.textContent = rpeSlider.value;
+                    }
+                }
+            } else {
+                // Set zone values if available
+                const sliderInstance = prefix === 'work' ? workZoneSliderInstance : restZoneSliderInstance;
+                if (sliderInstance && config.indice) {
+                    sliderInstance.set([config.indice, config.indice]);
+                }
+            }
+        }, 100);
     }
     
-    // Set design type
-    if (config.designedIn) {
-        const designField = document.getElementById(prefix + (prefix ? 'DesignedIn' : 'designedIn'));
-        if (designField) {
-            designField.value = config.designedIn;
-        }
-    }
-    
-    // Set threshold type and value
-    if (config.isRPE !== undefined) {
-        const thresholdField = document.getElementById(prefix + (prefix ? 'Threshold' : 'threshold'));
-        if (thresholdField) {
-            thresholdField.value = config.isRPE ? 'rpe' : 'pace';
-        }
-    }
-    
-    // Set threshold value
-    if (config.originalValue || config.indice) {
-        const valueField = document.getElementById(prefix + (prefix ? 'Value' : 'value'));
-        if (valueField) {
-            valueField.value = config.originalValue || config.indice;
-        }
-    }
-    
-    // Update sliders if they exist
+    // Update visibility after setting values
     updateSliderVisibility();
     if (phaseType === 'work') {
         updateWorkSliderVisibility();
+        updateWorkDurationInputVisibility();
     } else if (phaseType === 'rest') {
         updateRestSliderVisibility();
+        updateRestDurationInputVisibility();
+    } else {
+        updateDurationInputVisibility();
     }
 }
 
@@ -4190,6 +4271,13 @@ function removeCompactModeFromAllCards() {
     const cards = document.querySelectorAll('.part-card, .group-card');
     cards.forEach(card => {
         card.classList.remove('compact', 'expanded');
+        
+        // Remove compact layout
+        const compactInfo = card.querySelector('.compact-main-info');
+        if (compactInfo) {
+            compactInfo.remove();
+        }
+        
         removeToggleButton(card);
         removeCompactOrder(card);
     });
@@ -4212,25 +4300,9 @@ function makeCardCompact(card) {
 }
 
 function addToggleButton(card) {
-    if (card.querySelector('.card-toggle-btn')) return;
-    
-    const header = card.querySelector('.part-card-header, .group-card-header');
-    if (!header) return;
-    
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'card-toggle-btn';
-    toggleBtn.innerHTML = '<span class="toggle-icon">▼</span>';
-    toggleBtn.setAttribute('aria-label', 'Expandir/contraer información');
-    toggleBtn.setAttribute('aria-expanded', 'false');
-    toggleBtn.setAttribute('title', 'Click para expandir/contraer');
-    
-    toggleBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        toggleCardExpansion(card);
-    });
-    
-    header.appendChild(toggleBtn);
+    // Toggle button is now handled by createCompactLayout
+    // This function is kept for compatibility but does nothing
+    return;
 }
 
 function removeToggleButton(card) {
@@ -4243,36 +4315,150 @@ function removeToggleButton(card) {
 function toggleCardExpansion(card) {
     const isExpanded = card.classList.contains('expanded');
     const toggleBtn = card.querySelector('.card-toggle-btn');
+    const compactInfo = card.querySelector('.compact-main-info');
     
     if (isExpanded) {
+        // Switch to compact
         card.classList.remove('expanded');
         card.classList.add('compact');
+        
+        // Show compact info, hide traditional content
+        if (compactInfo) {
+            compactInfo.style.display = 'flex';
+        }
+        
         if (toggleBtn) {
             toggleBtn.setAttribute('aria-expanded', 'false');
             toggleBtn.setAttribute('title', 'Click para expandir');
+            const icon = toggleBtn.querySelector('.toggle-icon');
+            if (icon) icon.textContent = '▼';
         }
     } else {
+        // Switch to expanded
         card.classList.remove('compact');
         card.classList.add('expanded');
+        
+        // Hide compact info, show traditional content
+        if (compactInfo) {
+            compactInfo.style.display = 'none';
+        }
+        
         if (toggleBtn) {
             toggleBtn.setAttribute('aria-expanded', 'true');
             toggleBtn.setAttribute('title', 'Click para contraer');
+            const icon = toggleBtn.querySelector('.toggle-icon');
+            if (icon) icon.textContent = '▲';
         }
     }
 }
 
 function markEssentialStats(card) {
-    const stats = card.querySelectorAll('.part-card-stat');
+    // Remove old logic and create new compact layout
+    createCompactLayout(card);
+}
+
+function createCompactLayout(card) {
+    // Check if compact layout already exists
+    if (card.querySelector('.compact-main-info')) return;
     
-    // Mark the first 2 stats as essential (these will be visible in compact mode)
-    stats.forEach((stat, index) => {
-        if (index < 2) {
-            stat.classList.add('essential');
-        } else {
-            stat.classList.remove('essential');
-            }
-        });
+    // Get card data
+    const cardId = card.getAttribute('data-part-id') || card.getAttribute('data-group-id');
+    const isGroup = card.classList.contains('group-card');
+    
+    let part = null;
+    if (isGroup) {
+        part = groups.find(g => g.id === cardId);
+    } else {
+        part = findPartByIdGlobal(cardId, partesEntreno, groups);
     }
+    
+    if (!part) return;
+    
+    // Create compact layout
+    const compactInfo = document.createElement('div');
+    compactInfo.className = 'compact-main-info';
+    
+    // Title
+    const title = document.createElement('h3');
+    title.className = 'compact-title';
+    title.textContent = part.nombre || 'Sin nombre';
+    compactInfo.appendChild(title);
+    
+    // Subtitle
+    const subtitle = document.createElement('p');
+    subtitle.className = 'compact-subtitle';
+    
+    if (isGroup) {
+        subtitle.textContent = `Grupo • ${part.parts ? part.parts.length : 0} partes`;
+    } else if (part.type === 'series') {
+        subtitle.textContent = `Serie • ${part.repetitions || 1} repeticiones`;
+    } else {
+        subtitle.textContent = part.designedIn === 'distance' ? 'Diseñado por distancia' : 'Diseñado por tiempo';
+    }
+    compactInfo.appendChild(subtitle);
+    
+    // Stats container
+    const statsContainer = document.createElement('div');
+    statsContainer.className = 'compact-stats';
+    
+    // Duration stat
+    const durationStat = createCompactStat('Duración', formatDuration(part.totalDuration || part.duracion || 0));
+    statsContainer.appendChild(durationStat);
+    
+    // Distance stat
+    const approxKms = part.approxKms || calculateApproxKms(part);
+    const kmsStat = createCompactStat('Kms', `~${approxKms.toFixed(2)}`);
+    statsContainer.appendChild(kmsStat);
+    
+    // Order stat
+    const orderElement = card.querySelector('.part-card-stat.order-display span:last-child, .group-order span');
+    const orderValue = orderElement ? orderElement.textContent.trim() : '-';
+    const orderStat = createCompactStat('Orden', orderValue);
+    statsContainer.appendChild(orderStat);
+    
+    compactInfo.appendChild(statsContainer);
+    
+    // Actions container
+    const actionsContainer = document.createElement('div');
+    actionsContainer.className = 'compact-actions';
+    
+    // Add toggle button
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'card-toggle-btn';
+    toggleBtn.innerHTML = '<span class="toggle-icon">▼</span>';
+    toggleBtn.setAttribute('aria-label', 'Expandir información');
+    toggleBtn.setAttribute('title', 'Click para expandir');
+    
+    toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleCardExpansion(card);
+    });
+    
+    actionsContainer.appendChild(toggleBtn);
+    compactInfo.appendChild(actionsContainer);
+    
+    // Insert the compact layout
+    card.insertBefore(compactInfo, card.firstChild);
+}
+
+function createCompactStat(label, value) {
+    const stat = document.createElement('div');
+    stat.className = 'compact-stat';
+    
+    const labelEl = document.createElement('div');
+    labelEl.className = 'compact-stat-label';
+    labelEl.textContent = label;
+    
+    const valueEl = document.createElement('div');
+    valueEl.className = 'compact-stat-value';
+    valueEl.textContent = value;
+    
+    stat.appendChild(labelEl);
+    stat.appendChild(valueEl);
+    
+    return stat;
+}
     
 function observeForNewCards() {
     const observer = new MutationObserver(function(mutations) {
@@ -4331,22 +4517,9 @@ window.collapseAllCards = function() {
 };
 
 function addCompactOrder(card) {
-    if (card.querySelector('.compact-order')) return;
-    
-    const header = card.querySelector('.part-card-header, .group-card-header');
-    if (!header) return;
-    
-    // Find the order stat in the card body
-    const orderStat = card.querySelector('.part-card-stat.order-display span:last-child');
-    if (!orderStat) return;
-    
-    const orderValue = orderStat.textContent.trim();
-    
-    const compactOrder = document.createElement('div');
-    compactOrder.className = 'compact-order';
-    compactOrder.textContent = orderValue;
-    
-    header.appendChild(compactOrder);
+    // Order is now handled by createCompactLayout
+    // This function is kept for compatibility but does nothing
+    return;
 }
 
 function removeCompactOrder(card) {
