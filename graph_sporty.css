@@ -3,22 +3,23 @@
   --primary: #E71925;
   --primary-hover: #c41e1e;
   --background: #E1DFD2;
-  --surface: #222222;
-  --surface-light: #333333;
+  --surface: #1A1A1A;
+  --surface-light: #2A2A2A;
   --border: #444444;
-  --text: #E1DFD2;
-  --text-secondary: #E1DFD2;
+  --text: #FFFFFF;
+  --text-secondary: #F5F5F5;
   --accent: #E71925;
   --cream: #E1DFD2;
   --cream-dark: #d4d2c5;
-  --black: #222222;
-  --black-light: #333333;
+  --black: #1A1A1A;
+  --black-light: #2A2A2A;
   --red: #E71925;
   --red-dark: #c41e1e;
-  --background-dark: #222222;
+  --background-dark: #1A1A1A;
   --background-light: #E1DFD2;
-  --text-light: #E1DFD2;
-  --text-dark: #222222;
+  --text-light: #FFFFFF;
+  --text-dark: #1A1A1A;
+  --text-on-cream: #2C2C2C;
   --border-radius: 12px;
   --box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   --transition: all 0.3s ease;
@@ -27,10 +28,12 @@
   --gap-lg: 2rem;
   --primary-color: #E71925;
   --primary-dark: #c02121;
-  --surface: #222222;
-  --border: #444444;
-  --text: #E1DFD2;
-  --accent: #E71925;
+  
+  /* High contrast text colors */
+  --text-on-dark: #FFFFFF;
+  --text-on-light: #1A1A1A;
+  --text-muted-dark: #CCCCCC;
+  --text-muted-light: #666666;
   
   /* Updated colors */
   --graph-bar: var(--primary);
@@ -49,7 +52,7 @@ body {
   margin: 0;
   padding: 0.5vw;
   background: #E1DFD2;
-  color: #222222;
+  color: var(--text-on-cream);
   min-height: 100vh;
   line-height: 1.6;
   display: grid;
@@ -97,8 +100,9 @@ textarea {
   border: 1px solid #ddd;
   border-radius: 8px;
   background: white;
-  color: #222222;
+  color: var(--text-on-light);
   font-size: 1rem;
+  font-weight: 500;
 }
 
 input[type="text"] {
@@ -187,7 +191,7 @@ button {
 .graph-label {
   position: absolute;
   font-weight: bold;
-  color: #666666;
+  color: var(--text-muted-light);
   font-size: 0.9rem;
 }
 
@@ -257,7 +261,7 @@ button {
 
 .modal-content {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--surface-light);
   border-radius: 12px;
   padding: 2rem;
   width: 90%;
@@ -266,6 +270,7 @@ button {
   overflow-y: auto;
   position: relative;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  color: var(--text-on-dark);
 }
 
 #applyUmbral {
@@ -922,7 +927,7 @@ input:checked + .toggle-slider:hover:after {
   width: 100%; /* Ensure it takes full width */
   align-items: flex-start; /* Align items to the top */
   background: #E1DFD2;
-  border: 1px solid #333333;
+  border: 1px solid #d0cec1;
   border-radius: 12px;
   box-sizing: border-box;
 }
@@ -933,7 +938,7 @@ input:checked + .toggle-slider:hover:after {
 
 .part-card, .group-card {
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
   border-radius: 12px;
   padding: 1.2rem;
   margin: 1rem 0 1rem 0;
@@ -942,7 +947,7 @@ input:checked + .toggle-slider:hover:after {
   position: relative;
   cursor: grab;
   overflow: hidden;
-  color: #222222;
+  color: var(--text-on-light);
 }
 
 .part-card::before {
@@ -1001,7 +1006,7 @@ input:checked + .toggle-slider:hover:after {
 .part-card-title {
   font-weight: 700;
   font-size: 1.1rem;
-  color: #222222;
+  color: var(--text-on-light);
   margin: 0;
   line-height: 1.3;
   letter-spacing: -0.02em;
@@ -1053,13 +1058,13 @@ input:checked + .toggle-slider:hover:after {
 
 .part-card-stat span:first-child {
   font-weight: 500;
-  color: #666666;
+  color: var(--text-muted-light);
   font-size: 0.9rem;
 }
 
 .part-card-stat span:last-child {
   font-weight: 600;
-  color: #222222;
+  color: var(--text-on-light);
   font-size: 0.95rem;
 }
 
@@ -1288,15 +1293,16 @@ input:checked + .toggle-slider:hover:after {
 
 .notification {
   background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  color: var(--text-on-dark);
+  border: 1px solid var(--surface-light);
+  border-radius: 12px;
   padding: 1rem;
   max-width: 300px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   animation: slideIn 0.3s ease-out;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .notification:hover {
@@ -1307,22 +1313,25 @@ input:checked + .toggle-slider:hover:after {
 .notification.success {
   border-left: 4px solid var(--primary);
   background: var(--surface-light);
+  color: var(--text-on-dark);
 }
 
 .notification.error {
   border-left: 4px solid var(--primary);
   background: var(--surface-light);
-  color: var(--cream);
+  color: var(--text-on-dark);
 }
 
 .notification.warning {
-  border-left: 4px solid var(--cream-dark);
+  border-left: 4px solid #FFA500;
   background: var(--surface-light);
+  color: var(--text-on-dark);
 }
 
 .notification.info {
-  border-left: 4px solid var(--text-secondary);
+  border-left: 4px solid #007bff;
   background: var(--surface-light);
+  color: var(--text-on-dark);
 }
 
 /* === DRAG AND DROP IMPROVEMENTS === */
@@ -1632,29 +1641,31 @@ body.is-dragging * {
 
 /* JSON modal base styles */
 .json-modal-content {
-  background: #222;
-  color: white;
+  background: var(--surface);
+  color: var(--text-on-dark);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: 12px;
   max-width: 90vw;
   max-height: 90vh;
   width: 80vw;
   overflow-y: auto;
-  border: 1px solid #444;
+  border: 1px solid var(--surface-light);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .json-modal-content h3 {
-  color: #e32727;
+  color: var(--primary);
   margin-top: 0;
   margin-bottom: 1.5rem;
+  font-weight: 700;
 }
 
 .json-modal-content h4 {
-  color: #f66464;
+  color: var(--primary);
   margin-top: 0;
   margin-bottom: 1rem;
   font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .json-section {
@@ -1689,7 +1700,7 @@ body.is-dragging * {
 }
 
 .import-help {
-  color: #ccc;
+  color: var(--text-muted-dark);
   font-size: 0.9rem;
   margin-bottom: 1rem;
   font-style: italic;
@@ -1699,10 +1710,10 @@ body.is-dragging * {
   width: 100%;
   min-height: 120px;
   padding: 1rem;
-  background: #111;
-  color: white;
-  border: 1px solid #444;
-  border-radius: 4px;
+  background: var(--black);
+  color: var(--text-on-dark);
+  border: 1px solid var(--surface-light);
+  border-radius: 8px;
   font-family: monospace;
   font-size: 0.9rem;
   resize: vertical;
@@ -1711,12 +1722,12 @@ body.is-dragging * {
 
 #jsonImportInput:focus {
   outline: none;
-  border-color: #e32727;
-  box-shadow: 0 0 0 2px rgba(227, 39, 39, 0.2);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(231, 25, 37, 0.2);
 }
 
 #jsonImportInput::placeholder {
-  color: #666;
+  color: var(--text-muted-light);
   font-style: italic;
 }
 
@@ -2207,11 +2218,12 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     gap: 1rem;
     margin: 0;
     padding: 0.5rem;
-    background: #222222;
-    border: 1px solid #333333;
+    background: var(--surface);
+    border: 1px solid var(--surface-light);
     border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
+    color: var(--text-on-dark);
 }
 
 /* === TOOLBARS ROW === */
@@ -2222,11 +2234,12 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     gap: 1rem;
     margin: 0;
     padding: 0.5rem;
-    background: #222222;
-    border: 1px solid #333333;
+    background: var(--surface);
+    border: 1px solid var(--surface-light);
     border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
+    color: var(--text-on-dark);
 }
 
 .selection-toolbar {
@@ -2248,17 +2261,18 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 }
 
 .threshold-controls label {
-    color: #E1DFD2;
+    color: var(--text-on-dark);
     font-weight: 500;
 }
 
 #umbralInput {
     background: white;
     border: 1px solid #ddd;
-    color: #222222;
+    color: var(--text-on-light);
     padding: 0.5rem;
     border-radius: 8px;
     width: 120px;
+    font-weight: 500;
 }
 
 /* === MISSING SUMMARY BAR STATS === */
@@ -2327,8 +2341,8 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 /* Enhanced Summary Bar Styling */
 #summaryBar {
-  background: #222222;
-  border: 1px solid #333333;
+  background: var(--surface);
+  border: 1px solid var(--surface-light);
   border-radius: 12px;
   padding: 1rem;
   height: 100%;
@@ -2338,6 +2352,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   width: 100%;
   box-sizing: border-box;
   overflow: visible;
+  color: var(--text-on-dark);
 }
 
 #summaryBar .summary-stats {
@@ -2351,9 +2366,9 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 #summaryBar .summary-stat {
   text-align: center;
   padding: 1.5rem;
-  background: #333333;
+  background: var(--surface-light);
   border-radius: 8px;
-  border: 1px solid #444444;
+  border: 1px solid #555555;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -2391,7 +2406,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 .summary-stat-label {
   font-size: 0.9rem;
-  color: #E1DFD2;
+  color: var(--text-muted-dark);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 500;
@@ -2565,7 +2580,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     font-size: 0.9rem;
     font-weight: 500;
     margin: 0;
-    color: #E1DFD2;
+    color: var(--text-on-dark);
 }
 
 .controls-actions {
