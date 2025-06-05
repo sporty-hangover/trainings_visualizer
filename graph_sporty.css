@@ -1601,10 +1601,6 @@ body.is-dragging * {
 }
 
 #showJsonButton {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
   background: #e32727;
   color: white;
   padding: 0.5rem 1rem;
@@ -1612,6 +1608,9 @@ body.is-dragging * {
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+  width: fit-content;
 }
 #showJsonButton:hover {
   background: #c02121;
@@ -2186,6 +2185,15 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   color: white !important;
 }
 
+/* === CONTROLS CONTAINER === */
+.controls-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
 /* === MISSING THRESHOLD CONTROLS === */
 .threshold-controls {
     display: flex;
@@ -2226,22 +2234,19 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 /* Main Layout - 2 Column Responsive Design */
 .main-layout {
-  display: flex;
-  gap: 1.5rem;
+  display: block;
   margin: 2rem 0;
   min-height: 500px;
-  align-items: stretch;
 }
 
 .graph-section {
-  flex: 2;
-  min-width: 0; /* Allows flex item to shrink below its content size */
+  width: 100%;
+  margin-bottom: 1.5rem;
 }
 
 .summary-section {
-  flex: 1;
-  min-width: 280px;
-  max-width: 400px;
+  width: 100%;
+  margin: 1.5rem 0;
 }
 
 .grafico-wrapper {
@@ -2261,7 +2266,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.5rem;
-  height: 100%;
+  height: auto;
   display: flex;
   flex-direction: column;
   box-shadow: var(--box-shadow);
@@ -2269,9 +2274,9 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 
 #summaryBar .summary-stats {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1.5rem;
-  height: 100%;
+  height: auto;
   justify-content: space-around;
 }
 
@@ -2327,21 +2332,19 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 /* Responsive Design */
 @media (max-width: 1024px) {
   .main-layout {
-    flex-direction: column;
-    gap: 1rem;
+    margin: 1rem 0;
   }
   
-  .graph-section,
+  .graph-section {
+    margin-bottom: 1rem;
+  }
+  
   .summary-section {
-    flex: none;
-    min-width: auto;
-    max-width: none;
+    margin: 1rem 0;
   }
   
   #summaryBar .summary-stats {
-    flex-direction: row;
     gap: 1rem;
-    height: auto;
     justify-content: space-between;
   }
   
@@ -2358,6 +2361,14 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
 @media (max-width: 768px) {
   .main-layout {
     margin: 1rem 0;
+  }
+  
+  .graph-section {
+    margin-bottom: 0.75rem;
+  }
+  
+  .summary-section {
+    margin: 0.75rem 0;
   }
   
   #summaryBar .summary-stats {

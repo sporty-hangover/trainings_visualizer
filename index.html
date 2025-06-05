@@ -18,8 +18,6 @@
 
     
 
-    <button id="helpButton" type="button" aria-label="Mostrar ayuda" class="help-button">❓</button>
-    <button id="showJsonButton">📄 Ver JSON</button>
     <div id="jsonModal" class="modal hidden" role="dialog" aria-labelledby="jsonModalTitle" aria-modal="true">
         <div class="json-modal-content">
             <h3 id="jsonModalTitle">📋 Gestión de Entrenamientos (JSON)</h3>
@@ -56,6 +54,7 @@
     </div>
 
     <div class="controls-container">
+        <button id="showJsonButton">📄 Ver JSON</button>
         <button id="openAddTrainingModal" class="primary-btn">
             <span class="btn-icon">➕</span>
             <span class="btn-text">Añadir Parte</span>
@@ -323,12 +322,13 @@
                 <div id="grafico" role="img" aria-label="Gráfico visual del entrenamiento"></div>
             </div>
         </div>
-        
-        <div class="summary-section">
-            <div id="summaryBar" role="status" aria-live="polite">
-                <div class="summary-stats">
-                    <!-- Los totales se insertarán aquí mediante JavaScript -->
-                </div>
+    </div>
+    
+    <!-- Summary Section Below Graph -->
+    <div class="summary-section">
+        <div id="summaryBar" role="status" aria-live="polite">
+            <div class="summary-stats">
+                <!-- Los totales se insertarán aquí mediante JavaScript -->
             </div>
         </div>
     </div>
