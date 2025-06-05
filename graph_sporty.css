@@ -911,11 +911,13 @@ input:checked + .toggle-slider:hover:after {
   flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem;
-  margin-top: 1rem; /* Add top margin to prevent collision with controls */
+  margin-top: 0; /* No margin - attaches to toolbar */
   width: 100%; /* Ensure it takes full width */
   align-items: flex-start; /* Align items to the top */
-  background: #99ff99;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none; /* Connects with toolbar */
+  border-radius: 0 0 8px 8px;
 }
 
 .main-order-container {
@@ -2197,7 +2199,7 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     gap: 1rem;
     margin: 1rem 0;
     padding: 0.75rem;
-    background: #00ff00;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
 }
@@ -2208,11 +2210,11 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    margin: 2rem 0 2rem 0;
+    margin: 0 0 1rem 0;
     padding: 0.75rem;
-    background: #66ff66;
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 8px 8px 0 0;
 }
 
 .selection-toolbar {
@@ -2269,12 +2271,9 @@ button:hover:not(.noUi-handle):not(.noUi-base) {
   display: flex;
   gap: 1.5rem;
   margin: 1.5rem 0;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   height: 450px;
   align-items: stretch;
-  background: #33ff33;
-  padding: 1rem;
-  border-radius: 8px;
 }
 
 .graph-section {
